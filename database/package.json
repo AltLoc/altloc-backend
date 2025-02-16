@@ -1,0 +1,9 @@
+{
+	"name": "altloc-database",
+	"private": true,
+	"scripts": {
+	  "docker:up:dev": "docker compose -f docker-compose.dev.yml up -d",
+	  "docker:down:dev": "docker compose -f docker-compose.dev.yml down"
+	}
+  }
+  
