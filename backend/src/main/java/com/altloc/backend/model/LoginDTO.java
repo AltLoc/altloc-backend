@@ -14,11 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegistrationDTO {
-
-    @NotBlank
-    @Size(min = 3, max = 50)
-    private String username;
+public class LoginDTO {
 
     @NotBlank
     @Email
@@ -27,5 +23,4 @@ public class RegistrationDTO {
     @NotBlank
     @Size(min = 6, max = 50)
     private String password;
-
 }

@@ -1,30 +1,31 @@
-package com.altloc.backend.entity;
+package com.altloc.backend.store.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Entity
 @Table(name = "password_accounts")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PasswordEntity {
 
-    // Use user_id as primary key
     @Id
     @Column(name = "user_id")
     private String userId;
 
-    // Connection with UserEntity
+    // Связь с UserEntity
     @OneToOne
-    @MapsId // Use user_id as primary key
+    @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 
     @Column(nullable = false)
-    private String password;
+    private String passwordHashed;
 }

@@ -1,17 +1,18 @@
-package com.altloc.backend.entity;
+package com.altloc.backend.store.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,45 +29,37 @@ public class UserEntity {
     private String email;
 
     @Column(nullable = false)
-    private boolean emailVerified;
+    @Builder.Default
+    private boolean emailVerified = false;
 
-    private String avatarKey; // Может быть null
-
-    @Column(nullable = false)
-    private String role;
+    private String avatarKey;
 
     @Column(nullable = false)
-    private int score;
+    @Builder.Default
+    private String role = "user";
 
     @Column(nullable = false)
-    private int level;
+    @Builder.Default
+    private int score = 0;
 
     @Column(nullable = false)
-    private int currency;
+    @Builder.Default
+    private int level = 1;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int currency = 0;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
-    private boolean isAdmin;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "auth_methods", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "method", nullable = false)
-    private List<AuthMethod> authMethods;
-
     // Связь с таблицей паролей
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private PasswordEntity passwordAccount;
 
-    // Инициализация createdAt в конструкторе
+    // Инициализация createdAt
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
-    }
-
-    public enum AuthMethod {
-        PASSWORD, GOOGLE
     }
 }

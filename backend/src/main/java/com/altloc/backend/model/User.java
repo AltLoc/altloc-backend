@@ -1,11 +1,11 @@
 package com.altloc.backend.model;
 
+import com.altloc.backend.store.entity.UserEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import com.altloc.backend.entity.UserEntity;
 
 @Getter
 @Setter

@@ -1,9 +1,10 @@
 package com.altloc.backend.model;
 
-import com.altloc.backend.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.altloc.backend.store.entity.UserEntity;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getPasswordAccount() != null ? user.getPasswordAccount().getPassword() : null);
+                user.getPasswordAccount().getPasswordHashed());
     }
 
     @Override

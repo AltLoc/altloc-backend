@@ -1,18 +1,15 @@
 package com.altloc.backend.auth.password;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.altloc.backend.entity.UserEntity;
-import com.altloc.backend.entity.UserEntity.AuthMethod;
-import com.altloc.backend.entity.PasswordEntity;
 import com.altloc.backend.exception.UserAlreadyExistException;
 import com.altloc.backend.model.RegistrationDTO;
-import com.altloc.backend.repository.UserRepository;
-import com.altloc.backend.repository.PasswordRepository;
+import com.altloc.backend.store.entity.PasswordEntity;
+import com.altloc.backend.store.entity.UserEntity;
+import com.altloc.backend.store.repository.PasswordRepository;
+import com.altloc.backend.store.repository.UserRepository;
 
 @Service
 public class PasswordService {
@@ -48,8 +45,9 @@ public class PasswordService {
 
     private PasswordEntity createPasswordAccount(UserEntity user, String rawPassword) {
         PasswordEntity passwordEntity = new PasswordEntity();
-        passwordEntity.setUser(user); // Join with user entity
-        passwordEntity.setPassword(passwordEncoder.encode(rawPassword)); // Encode password
+        passwordEntity.setUser(user);
+        passwordEntity.setPasswordHashed(passwordEncoder.encode(rawPassword));
+
         return passwordEntity;
     }
 
@@ -62,8 +60,6 @@ public class PasswordService {
         entity.setScore(0);
         entity.setLevel(1);
         entity.setCurrency(0);
-        entity.setAuthMethods(
-                List.of(AuthMethod.PASSWORD));
         return entity;
     }
 
