@@ -44,7 +44,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 System.out.println("JWT: " + jwt);
             }
 
-            if (jwt != null && jwtCore.validateToken(jwt)) { // Проверяем валидность токена
+            if (jwt != null && jwtCore.validateToken(jwt)) {
                 email = jwtCore.getUsernameFromToken(jwt);
                 System.out.println("Username from JWT: " + email);
 

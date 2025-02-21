@@ -37,24 +37,6 @@ public class JwtCore {
                 .compact();
     }
 
-    // public String generateToken(Authentication authentication) {
-    // UserDetailsImpl userDetails = (UserDetailsImpl)
-    // authentication.getPrincipal();
-
-    // Map<String, Object> claims = new HashMap<>();
-    // claims.put("id", userDetails.getId());
-    // claims.put("username", userDetails.getUsername());
-    // claims.put("email", userDetails.getEmail());
-
-    // return Jwts.builder()
-    // .setClaims(claims)
-    // .setSubject(userDetails.getUsername())
-    // .setIssuedAt(new Date())
-    // .setExpiration(new Date(System.currentTimeMillis() + expiration))
-    // .signWith(getSignInKey(), SignatureAlgorithm.HS512)
-    // .compact();
-    // }
-
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
