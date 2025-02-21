@@ -34,7 +34,7 @@ public class TokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String jwt = null;
-        String username = null;
+        String email = null;
         UserDetails userDetails = null;
 
         try {
@@ -45,11 +45,11 @@ public class TokenFilter extends OncePerRequestFilter {
             }
 
             if (jwt != null && jwtCore.validateToken(jwt)) { // Проверяем валидность токена
-                username = jwtCore.getUsernameFromToken(jwt);
-                System.out.println("Username from JWT: " + username);
+                email = jwtCore.getUsernameFromToken(jwt);
+                System.out.println("Username from JWT: " + email);
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    userDetails = userDetailsService.loadUserByUsername(username);
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    userDetails = userDetailsService.loadUserByUsername(email);
 
                     if (userDetails != null) {
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails,

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import com.altloc.backend.config.SecurityConfig;
 import com.altloc.backend.model.LoginDTO;
 import com.altloc.backend.model.RegistrationDTO;
-// import com.altloc.backend.service.UserService;
 import com.altloc.backend.store.entity.PasswordEntity;
 import com.altloc.backend.store.entity.UserEntity;
 import com.altloc.backend.store.repository.UserRepository;
@@ -33,7 +32,6 @@ public class PasswordController {
 
     @Autowired
     private final UserRepository userRepository;
-    // private final UserService userService;
 
     @Autowired
     private final JwtCore jwtCore;
@@ -84,15 +82,15 @@ public class PasswordController {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            requestLogin.getUsername(),
+                            requestLogin.getEmail(),
                             requestLogin.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtCore.generateToken(authentication);
 
-            return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok("User successfully login " + jwt);
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.badRequest().body("Invalid email or password");
         }
     }
 

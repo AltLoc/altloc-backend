@@ -1,6 +1,6 @@
 package com.altloc.backend.model;
 
-// import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,13 +15,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginDTO {
 
-    // @NotBlank
-    // @Email
-    // private String email;
-
     @NotBlank
-    @Size(min = 3, max = 50)
-    private String username;
+    @Email
+    private String email;
+
+    // @NotBlank
+    // @Size(min = 3, max = 50)
+    // private String username;
 
     @NotBlank
     @Size(min = 6, max = 50)

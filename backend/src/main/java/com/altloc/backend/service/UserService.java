@@ -21,13 +21,23 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    // email is used instead of username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByUsername(username)
+        UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        String.format("User with username %s not found", username)));
+                        String.format("User with email %s not found", username)));
 
         return UserDetailsImpl.build(user);
     }
+
+    // public UserDetails loadUserByEmail(String email) throws
+    // EmailNotFoundException {
+    // UserEntity user = userRepository.findByEmail(email)
+    // .orElseThrow(() -> new EmailNotFoundException(
+    // String.format("User with email %s not found", email)));
+
+    // return UserDetailsImpl.build(user);
+    // }
 
 }
