@@ -1,19 +1,19 @@
 package com.altloc.backend.utils;
 
-import org.springframework.stereotype.Component;
-
-import com.altloc.backend.model.UserDetailsImpl;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 import org.springframework.beans.factory.annotation.Value;
-import io.jsonwebtoken.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+import com.altloc.backend.model.UserDetailsImpl;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.security.Key;
-
-import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtCore {
@@ -24,30 +24,43 @@ public class JwtCore {
     @Value("${backend.jwt.expiration}")
     private long expiration;
 
-    private Key getSigningKey() {
-        return new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.HS512.getJcaName());
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("id", userDetails.getId());
-        claims.put("username", userDetails.getUsername());
-        claims.put("email", userDetails.getEmail());
-
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject((userDetails.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // public String generateToken(Authentication authentication) {
+    // UserDetailsImpl userDetails = (UserDetailsImpl)
+    // authentication.getPrincipal();
+
+    // Map<String, Object> claims = new HashMap<>();
+    // claims.put("id", userDetails.getId());
+    // claims.put("username", userDetails.getUsername());
+    // claims.put("email", userDetails.getEmail());
+
+    // return Jwts.builder()
+    // .setClaims(claims)
+    // .setSubject(userDetails.getUsername())
+    // .setIssuedAt(new Date())
+    // .setExpiration(new Date(System.currentTimeMillis() + expiration))
+    // .signWith(getSignInKey(), SignatureAlgorithm.HS512)
+    // .compact();
+    // }
+
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -57,7 +70,7 @@ public class JwtCore {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+                    .setSigningKey(getSignInKey())
                     .build()
                     .parseClaimsJws(token);
             return true;

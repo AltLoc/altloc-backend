@@ -2,6 +2,7 @@ package com.altloc.backend.config;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
+
+    @Autowired
     private JwtCore jwtCore;
+
+    @Autowired
     private UserDetailsService userDetailsService;
 
     @Override
@@ -27,36 +32,38 @@ public class TokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
+
         String jwt = null;
         String username = null;
         UserDetails userDetails = null;
-        UsernamePasswordAuthenticationToken auth = null;
 
         try {
             String headerAuth = request.getHeader("Authorization");
             if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
                 jwt = headerAuth.substring(7);
+                System.out.println("JWT: " + jwt);
             }
 
-            if (jwt != null) {
-                try {
-                    username = jwtCore.getUsernameFromToken(jwt);
-                } catch (Exception e) {
-                    // TODO: handle exception
-                    System.out.println("JWT no live");
-                }
+            if (jwt != null && jwtCore.validateToken(jwt)) { // Проверяем валидность токена
+                username = jwtCore.getUsernameFromToken(jwt);
+                System.out.println("Username from JWT: " + username);
+
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     userDetails = userDetailsService.loadUserByUsername(username);
-                    auth = new UsernamePasswordAuthenticationToken(userDetails, null);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails,
+                                null, userDetails.getAuthorities());
+
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
             }
-
         } catch (Exception e) {
-            // TODO: handle exception
+            System.err.println("Error in JWT processing: " + e.getMessage());
+            e.printStackTrace();
         }
+
         filterChain.doFilter(request, response);
-
     }
-
 }
