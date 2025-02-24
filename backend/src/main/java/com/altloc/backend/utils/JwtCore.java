@@ -13,6 +13,7 @@ import com.altloc.backend.model.UserDetailsImpl;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -89,8 +90,40 @@ public class JwtCore {
         }
     }
 
+    // public boolean validateRefreshToken(String refreshToken) {
+    // return refreshTokenRepository.findByRefreshToken(refreshToken).isPresent();
+    // }
+
     public boolean validateRefreshToken(String refreshToken) {
-        return refreshTokenRepository.findByRefreshToken(refreshToken).isPresent();
+        // Проверяем, существует ли Refresh Token в базе данных
+        Optional<RefreshTokenEntity> storedToken = refreshTokenRepository.findByRefreshToken(refreshToken);
+
+        System.out.println("Stored token: " + storedToken.toString());
+
+        // Если токен не найден в базе, возвращаем false
+        if (!storedToken.isPresent()) {
+            System.out.println("Token not found in DB");
+            return false;
+        }
+
+        // Проверяем, не истек ли срок действия Refresh Token
+        RefreshTokenEntity token = storedToken.get();
+        if (token.getExpirationDate().before(new Date())) {
+            System.out.println("Token expired");
+            return false;
+        }
+
+        // Теперь можем дополнительно проверять подпись токена, если требуется
+        // (например, через декодирование)
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey()) // Ваш секретный ключ для подписи токенов
+                    .build()
+                    .parseClaimsJws(refreshToken); // Если подпись не верна, будет выброшено исключение
+            return true; // Если подпись верна и срок действия не истек
+        } catch (Exception e) {
+            return false; // Если подпись неверна или токен поврежден
+        }
     }
 
     public void deleteRefreshToken(String refreshToken) {

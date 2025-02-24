@@ -107,6 +107,7 @@ public class PasswordController {
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
         try {
+            System.out.println("Refresh token: " + refreshToken);
             // Проверяем, действителен ли refresh токен
             if (jwtCore.validateRefreshToken(refreshToken)) {
                 String email = jwtCore.getUsernameFromToken(refreshToken);
