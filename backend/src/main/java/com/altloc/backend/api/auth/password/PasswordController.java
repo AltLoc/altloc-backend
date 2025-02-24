@@ -1,4 +1,4 @@
-package com.altloc.backend.auth.password;
+package com.altloc.backend.api.auth.password;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.altloc.backend.config.SecurityConfig;
+import com.altloc.backend.model.JwtResponseDTO;
 import com.altloc.backend.model.LoginDTO;
 import com.altloc.backend.model.RegistrationDTO;
 import com.altloc.backend.store.entity.PasswordEntity;
@@ -78,7 +79,7 @@ public class PasswordController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO requestLogin) {
+    public JwtResponseDTO login(@Valid @RequestBody LoginDTO requestLogin) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -87,10 +88,47 @@ public class PasswordController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtCore.generateToken(authentication);
+            String refreshToken = jwtCore.generateRefreshToken(authentication);
 
-            return ResponseEntity.ok("User successfully login " + jwt);
+            return JwtResponseDTO.builder()
+                    .accessToken(jwt)
+                    .token(refreshToken)
+                    .build();
+
         } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body("Invalid email or password");
+            System.out.println("login error " + e);
+            return JwtResponseDTO.builder()
+                    .accessToken(null)
+                    .token(null)
+                    .build();
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
+        try {
+            // Проверяем, действителен ли refresh токен
+            if (jwtCore.validateRefreshToken(refreshToken)) {
+                String email = jwtCore.getUsernameFromToken(refreshToken);
+                // Генерируем новый access токен
+                String newAccessToken = jwtCore.generateToken(authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(email, null)));
+                return ResponseEntity.ok(newAccessToken);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token");
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam String refreshToken) {
+        try {
+            jwtCore.deleteRefreshToken(refreshToken);
+            return ResponseEntity.ok("Successfully logged out");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout");
         }
     }
 
