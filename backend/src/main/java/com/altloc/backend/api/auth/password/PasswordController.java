@@ -1,5 +1,7 @@
 package com.altloc.backend.api.auth.password;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -78,8 +80,34 @@ public class PasswordController {
         }
     }
 
+    // @PostMapping("/login")
+    // public JwtResponseDTO login(@Valid @RequestBody LoginDTO requestLogin) {
+    // try {
+    // Authentication authentication = authenticationManager.authenticate(
+    // new UsernamePasswordAuthenticationToken(
+    // requestLogin.getEmail(),
+    // requestLogin.getPassword()));
+
+    // SecurityContextHolder.getContext().setAuthentication(authentication);
+    // String jwt = jwtCore.generateToken(authentication);
+    // String refreshToken = jwtCore.generateRefreshToken(authentication);
+
+    // return JwtResponseDTO.builder()
+    // .accessToken(jwt)
+    // .token(refreshToken)
+    // .build();
+
+    // } catch (BadCredentialsException e) {
+    // System.out.println("login error " + e);
+    // return JwtResponseDTO.builder()
+    // .accessToken(null)
+    // .token(null)
+    // .build();
+    // }
+    // }
+
     @PostMapping("/login")
-    public JwtResponseDTO login(@Valid @RequestBody LoginDTO requestLogin) {
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO requestLogin, HttpServletResponse response) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -90,17 +118,28 @@ public class PasswordController {
             String jwt = jwtCore.generateToken(authentication);
             String refreshToken = jwtCore.generateRefreshToken(authentication);
 
-            return JwtResponseDTO.builder()
-                    .accessToken(jwt)
-                    .token(refreshToken)
-                    .build();
+            // Устанавливаем accessToken в HttpOnly куку
+            Cookie accessTokenCookie = new Cookie("accessToken", jwt);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true); // Включить в продакшене (HTTPS)
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(60 * 15); // 15 минут
+
+            // Устанавливаем refreshToken в HttpOnly куку
+            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7); // 7 дней
+
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+
+            return ResponseEntity.ok().build();
 
         } catch (BadCredentialsException e) {
             System.out.println("login error " + e);
-            return JwtResponseDTO.builder()
-                    .accessToken(null)
-                    .token(null)
-                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
