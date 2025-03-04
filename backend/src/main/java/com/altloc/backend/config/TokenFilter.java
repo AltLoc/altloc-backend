@@ -1,73 +1,3 @@
-// package com.altloc.backend.config;
-
-// import java.io.IOException;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-// import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.core.userdetails.UserDetailsService;
-// import org.springframework.stereotype.Component;
-// import org.springframework.web.filter.OncePerRequestFilter;
-
-// import com.altloc.backend.utils.JwtCore;
-
-// import jakarta.servlet.FilterChain;
-// import jakarta.servlet.ServletException;
-// import jakarta.servlet.http.HttpServletRequest;
-// import jakarta.servlet.http.HttpServletResponse;
-
-// @Component
-// public class TokenFilter extends OncePerRequestFilter {
-
-//     @Autowired
-//     private JwtCore jwtCore;
-
-//     @Autowired
-//     private UserDetailsService userDetailsService;
-
-//     @Override
-//     protected void doFilterInternal(
-//             HttpServletRequest request,
-//             HttpServletResponse response,
-//             FilterChain filterChain)
-//             throws ServletException, IOException {
-
-//         String jwt = null;
-//         String email = null;
-//         UserDetails userDetails = null;
-
-//         try {
-//             String headerAuth = request.getHeader("Authorization");
-//             if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-//                 jwt = headerAuth.substring(7);
-//                 System.out.println("JWT: " + jwt);
-//             }
-
-//             if (jwt != null && jwtCore.validateToken(jwt)) {
-//                 email = jwtCore.getUsernameFromToken(jwt);
-//                 System.out.println("Username from JWT: " + email);
-
-//                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//                     userDetails = userDetailsService.loadUserByUsername(email);
-
-//                     if (userDetails != null) {
-//                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails,
-//                                 null, userDetails.getAuthorities());
-
-//                         SecurityContextHolder.getContext().setAuthentication(auth);
-//                     }
-//                 }
-//             }
-//         } catch (Exception e) {
-//             System.err.println("Error in JWT processing: " + e.getMessage());
-//             e.printStackTrace();
-//         }
-
-//         filterChain.doFilter(request, response);
-//     }
-// }
-
 package com.altloc.backend.config;
 
 import java.io.IOException;
@@ -80,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.altloc.backend.utils.JwtCore;
+import com.altloc.backend.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -91,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class TokenFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtCore jwtCore;
+    private JwtService jwtCore;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -107,11 +37,13 @@ public class TokenFilter extends OncePerRequestFilter {
         String email = null;
         UserDetails userDetails = null;
         String refreshToken = null;
+        String headerAuth = request.getHeader("Authorization");
 
         try {
-            String headerAuth = request.getHeader("Authorization");
+            // Извлечение JWT токена из заголовка
             if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
                 jwt = headerAuth.substring(7);
+                System.out.println("JWT get from header: " + jwt);
             }
 
             // Проверка Access Token
@@ -122,40 +54,35 @@ public class TokenFilter extends OncePerRequestFilter {
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     userDetails = userDetailsService.loadUserByUsername(email);
 
-                    if (userDetails != null) {
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null, userDetails.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
+                    // Создание объекта Authentication для доступа в контексте
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } else {
-                // Если Access Token не валиден, проверим Refresh Token
+                // Если Access Token не валиден, проверяем Refresh Token
                 String refreshTokenHeader = request.getHeader("Refresh-Token");
                 if (refreshTokenHeader != null) {
                     refreshToken = refreshTokenHeader;
-
-                    // Валидируем Refresh Token
-                    if (jwtCore.validateToken(refreshToken)) {
+                    System.out.println("Refresh Token get from header: " + refreshToken);
+                    if (jwtCore.validateRefreshToken(refreshToken)) {
                         email = jwtCore.getUsernameFromToken(refreshToken);
                         System.out.println("Username from Refresh Token: " + email);
 
-                        // Если Refresh Token валиден, создаем новый Access Token
                         if (email != null) {
                             String newAccessToken = jwtCore.generateToken(
                                     SecurityContextHolder.getContext().getAuthentication());
-                            response.setHeader("Authorization", "Bearer " + newAccessToken); // Устанавливаем новый
-                                                                                             // Access Token в ответ
+                            response.setHeader("Authorization", "Bearer " + newAccessToken);
 
-                            // Восстановление Authentication
                             userDetails = userDetailsService.loadUserByUsername(email);
                             if (userDetails != null) {
                                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null, userDetails.getAuthorities());
+                                        userDetails, null, userDetails.getAuthorities());
                                 SecurityContextHolder.getContext().setAuthentication(auth);
                             }
                         }
+                    } else {
+                        System.out.println("Refresh Token is invalid");
                     }
                 }
             }

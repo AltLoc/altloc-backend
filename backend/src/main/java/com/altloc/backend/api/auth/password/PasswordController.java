@@ -15,16 +15,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.altloc.backend.config.SecurityConfig;
-import com.altloc.backend.model.JwtResponseDTO;
 import com.altloc.backend.model.LoginDTO;
+import com.altloc.backend.model.LoginResponse;
 import com.altloc.backend.model.RegistrationDTO;
+import com.altloc.backend.service.JwtService;
+import com.altloc.backend.service.UserService;
 import com.altloc.backend.store.entity.PasswordEntity;
 import com.altloc.backend.store.entity.UserEntity;
 import com.altloc.backend.store.repository.UserRepository;
-import com.altloc.backend.utils.JwtCore;
 
 @Getter
 @Setter
@@ -37,7 +39,10 @@ public class PasswordController {
     private final UserRepository userRepository;
 
     @Autowired
-    private final JwtCore jwtCore;
+    private final JwtService jwtService;
+
+    @Autowired
+    private final UserService userDetailsService;
 
     @Autowired
     private final AuthenticationManager authenticationManager;
@@ -59,7 +64,7 @@ public class PasswordController {
                     .username(request.getUsername())
                     .email(request.getEmail())
                     .emailVerified(false)
-                    .role("USER")
+                    .role(null)
                     .score(0)
                     .level(1)
                     .avatarKey("")
@@ -76,38 +81,12 @@ public class PasswordController {
 
             return ResponseEntity.ok("User successfully registered");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Something went wrong");
+            return ResponseEntity.badRequest().body("Something went wrong during registration");
         }
     }
 
-    // @PostMapping("/login")
-    // public JwtResponseDTO login(@Valid @RequestBody LoginDTO requestLogin) {
-    // try {
-    // Authentication authentication = authenticationManager.authenticate(
-    // new UsernamePasswordAuthenticationToken(
-    // requestLogin.getEmail(),
-    // requestLogin.getPassword()));
-
-    // SecurityContextHolder.getContext().setAuthentication(authentication);
-    // String jwt = jwtCore.generateToken(authentication);
-    // String refreshToken = jwtCore.generateRefreshToken(authentication);
-
-    // return JwtResponseDTO.builder()
-    // .accessToken(jwt)
-    // .token(refreshToken)
-    // .build();
-
-    // } catch (BadCredentialsException e) {
-    // System.out.println("login error " + e);
-    // return JwtResponseDTO.builder()
-    // .accessToken(null)
-    // .token(null)
-    // .build();
-    // }
-    // }
-
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO requestLogin, HttpServletResponse response) {
+    public LoginResponse login(@Valid @RequestBody LoginDTO requestLogin, HttpServletResponse response) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -115,49 +94,63 @@ public class PasswordController {
                             requestLogin.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtCore.generateToken(authentication);
-            String refreshToken = jwtCore.generateRefreshToken(authentication);
+            String jwt = jwtService.generateToken(authentication);
+            String refreshToken = jwtService.generateRefreshToken(authentication);
 
-            // Устанавливаем accessToken в HttpOnly куку
             Cookie accessTokenCookie = new Cookie("accessToken", jwt);
             accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true); // Включить в продакшене (HTTPS)
+            accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
             accessTokenCookie.setPath("/");
-            accessTokenCookie.setMaxAge(60 * 15); // 15 минут
+            accessTokenCookie.setMaxAge(60 * 15);
 
-            // Устанавливаем refreshToken в HttpOnly куку
             Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
             refreshTokenCookie.setHttpOnly(true);
             refreshTokenCookie.setSecure(true);
             refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7); // 7 дней
+            refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7);
 
             response.addCookie(accessTokenCookie);
             response.addCookie(refreshTokenCookie);
 
-            return ResponseEntity.ok().build();
+            return LoginResponse.builder()
+                    .accessToken(jwt)
+                    .refreshToken(refreshToken)
+                    .build();
 
         } catch (BadCredentialsException e) {
             System.out.println("login error " + e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return null;
         }
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
+    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken, HttpServletResponse response) {
+
         try {
             System.out.println("Refresh token: " + refreshToken);
-            // Проверяем, действителен ли refresh токен
-            if (jwtCore.validateRefreshToken(refreshToken)) {
-                String email = jwtCore.getUsernameFromToken(refreshToken);
-                // Генерируем новый access токен
-                String newAccessToken = jwtCore.generateToken(authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(email, null)));
-                return ResponseEntity.ok(newAccessToken);
+
+            if (jwtService.validateRefreshToken(refreshToken)) {
+                String email = jwtService.getUsernameFromToken(refreshToken);
+
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+                String newAccessToken = jwtService.generateToken(
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+
+                Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
+                accessTokenCookie.setHttpOnly(true);
+                accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
+                accessTokenCookie.setPath("/");
+                accessTokenCookie.setMaxAge(60 * 15);
+
+                response.addCookie(accessTokenCookie);
+
+                return ResponseEntity.ok("Successfully refreshed token");
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token");
         }
     }
@@ -165,7 +158,7 @@ public class PasswordController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestParam String refreshToken) {
         try {
-            jwtCore.deleteRefreshToken(refreshToken);
+            jwtService.deleteRefreshToken(refreshToken);
             return ResponseEntity.ok("Successfully logged out");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout");

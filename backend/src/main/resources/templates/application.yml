@@ -1,0 +1,35 @@
+server:
+  port: 4000
+
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/altlocdb
+    username: dev
+    password: dev
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: POSTGRESQL
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  security:
+    user:
+      name: dev
+      password: dev
+
+backend:
+  jwt:
+    secret: fgffdhfejkfe4t4yw34y98yeuihfjseafjhdsjfsdaf
+    expiration: 150000
+    refreshExpiration: 600000

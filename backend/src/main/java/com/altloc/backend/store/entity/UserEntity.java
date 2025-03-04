@@ -9,6 +9,8 @@ import lombok.Builder;
 
 import java.time.Instant;
 
+import com.altloc.backend.model.Role;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -35,8 +37,9 @@ public class UserEntity {
     private String avatarKey;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private String role = "user";
+    private Role role = Role.USER;
 
     @Column(nullable = false)
     @Builder.Default
@@ -61,5 +64,9 @@ public class UserEntity {
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();
+        if (this.role == null) {
+            this.role = Role.USER;
+        }
+
     }
 }

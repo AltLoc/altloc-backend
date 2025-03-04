@@ -1,14 +1,20 @@
 package com.altloc.backend.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.altloc.backend.store.entity.UserEntity;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
+@Getter
+@Setter
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
@@ -16,37 +22,22 @@ public class UserDetailsImpl implements UserDetails {
     private final String username;
     private final String email;
     private final String password;
+    private final Role role;
 
     public static UserDetailsImpl build(UserEntity user) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getPasswordAccount().getPasswordHashed());
+                user.getPasswordAccount().getPasswordHashed(),
+                user.getRole());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Пока возвращаем пустой список, если роли не используются
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getId() {
-        return id;
+        // return Collections.emptyList();
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

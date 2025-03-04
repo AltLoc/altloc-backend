@@ -28,7 +28,7 @@ public class RefreshTokenEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "refresh_token", nullable = false, unique = true)
     private String refreshToken;
 
     @Column(nullable = false)
