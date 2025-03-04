@@ -156,9 +156,22 @@ public class PasswordController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestParam String refreshToken) {
+    public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
-            jwtService.deleteRefreshToken(refreshToken);
+            Cookie accessTokenCookie = new Cookie("accessToken", null);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(0);
+
+            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(0);
+
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
             return ResponseEntity.ok("Successfully logged out");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout");
