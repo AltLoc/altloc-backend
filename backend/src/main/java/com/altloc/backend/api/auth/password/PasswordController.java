@@ -1,6 +1,7 @@
 package com.altloc.backend.api.auth.password;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -94,7 +95,7 @@ public class PasswordController {
                             requestLogin.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtService.generateToken(authentication);
+            String jwt = jwtService.generateAccessToken(authentication);
             String refreshToken = jwtService.generateRefreshToken(authentication);
 
             Cookie accessTokenCookie = new Cookie("accessToken", jwt);
@@ -124,9 +125,28 @@ public class PasswordController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken, HttpServletResponse response) {
-
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
+            // Получаем куки из запроса
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No cookies found");
+            }
+
+            String refreshToken = null;
+
+            // Ищем куку с именем "refreshToken"
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+
+            if (refreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");
+            }
+
             System.out.println("Refresh token: " + refreshToken);
 
             if (jwtService.validateRefreshToken(refreshToken)) {
@@ -134,14 +154,14 @@ public class PasswordController {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                String newAccessToken = jwtService.generateToken(
+                String newAccessToken = jwtService.generateAccessToken(
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
 
                 Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
                 accessTokenCookie.setHttpOnly(true);
-                accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
+                accessTokenCookie.setSecure(true); // Включить в продакшене (HTTPS)
                 accessTokenCookie.setPath("/");
-                accessTokenCookie.setMaxAge(60 * 15);
+                accessTokenCookie.setMaxAge(60 * 15); // 15 минут
 
                 response.addCookie(accessTokenCookie);
 
@@ -154,6 +174,42 @@ public class PasswordController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token");
         }
     }
+
+    // @PostMapping("/refresh-token")
+    // public ResponseEntity<?> refreshToken(@RequestParam String refreshToken,
+    // HttpServletResponse response) {
+
+    // try {
+    // System.out.println("Refresh token: " + refreshToken);
+
+    // if (jwtService.validateRefreshToken(refreshToken)) {
+    // String email = jwtService.getUsernameFromToken(refreshToken);
+
+    // UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+    // String newAccessToken = jwtService.generateAccessToken(
+    // new UsernamePasswordAuthenticationToken(userDetails, null,
+    // userDetails.getAuthorities()));
+
+    // Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
+    // accessTokenCookie.setHttpOnly(true);
+    // accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
+    // accessTokenCookie.setPath("/");
+    // accessTokenCookie.setMaxAge(60 * 15);
+
+    // response.addCookie(accessTokenCookie);
+
+    // return ResponseEntity.ok("Successfully refreshed token");
+    // } else {
+    // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh
+    // token");
+    // }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error
+    // refreshing token");
+    // }
+    // }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
