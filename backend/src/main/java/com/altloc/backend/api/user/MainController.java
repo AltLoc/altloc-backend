@@ -1,4 +1,4 @@
-package com.altloc.backend.user;
+package com.altloc.backend.api.user;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.altloc.backend.config.SecurityConfig;
 import com.altloc.backend.model.LoginDTO;
@@ -119,15 +120,13 @@ public class PasswordController {
                     .build();
 
         } catch (BadCredentialsException e) {
-            System.out.println("login error " + e);
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
-            // Получаем куки из запроса
             Cookie[] cookies = request.getCookies();
             if (cookies == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No cookies found");
@@ -135,7 +134,6 @@ public class PasswordController {
 
             String refreshToken = null;
 
-            // Ищем куку с именем "refreshToken"
             for (Cookie cookie : cookies) {
                 if ("refreshToken".equals(cookie.getName())) {
                     refreshToken = cookie.getValue();
@@ -159,9 +157,9 @@ public class PasswordController {
 
                 Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
                 accessTokenCookie.setHttpOnly(true);
-                accessTokenCookie.setSecure(true); // Включить в продакшене (HTTPS)
+                accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
                 accessTokenCookie.setPath("/");
-                accessTokenCookie.setMaxAge(60 * 15); // 15 минут
+                accessTokenCookie.setMaxAge(60 * 15);
 
                 response.addCookie(accessTokenCookie);
 
@@ -174,42 +172,6 @@ public class PasswordController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error refreshing token");
         }
     }
-
-    // @PostMapping("/refresh-token")
-    // public ResponseEntity<?> refreshToken(@RequestParam String refreshToken,
-    // HttpServletResponse response) {
-
-    // try {
-    // System.out.println("Refresh token: " + refreshToken);
-
-    // if (jwtService.validateRefreshToken(refreshToken)) {
-    // String email = jwtService.getUsernameFromToken(refreshToken);
-
-    // UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-    // String newAccessToken = jwtService.generateAccessToken(
-    // new UsernamePasswordAuthenticationToken(userDetails, null,
-    // userDetails.getAuthorities()));
-
-    // Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
-    // accessTokenCookie.setHttpOnly(true);
-    // accessTokenCookie.setSecure(true); // Switch to true in production (HTTPS)
-    // accessTokenCookie.setPath("/");
-    // accessTokenCookie.setMaxAge(60 * 15);
-
-    // response.addCookie(accessTokenCookie);
-
-    // return ResponseEntity.ok("Successfully refreshed token");
-    // } else {
-    // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh
-    // token");
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error
-    // refreshing token");
-    // }
-    // }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
