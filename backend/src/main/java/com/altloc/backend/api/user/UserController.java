@@ -2,24 +2,18 @@ package com.altloc.backend.api.user;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.altloc.backend.model.UserDetailsImpl;
-
-// import com.altloc.backend.store.entity.UserEntity;
-
-// import java.security.Principal;
-
-import org.springframework.security.core.Authentication;
-
-import java.security.Principal;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
+
+import com.altloc.backend.model.UserDetailsImpl;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/secured")
-public class MainController {
+public class UserController {
 
     @GetMapping("/user")
     public String userAccess(Principal principal) {
