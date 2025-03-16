@@ -16,9 +16,16 @@ All modules listed below are planned for **Version 1.0**.
 ---
 
 ### ✅ User Profile  
-- [ ] Fetch user profile data  
+- [X] Fetch user profile data  
 - [ ] Update email and password  
 - [ ] Activity history  
+
+---
+
+### ✅ Identity Matrix
+- [ ] Create matries  
+- [ ] Edit matries  
+- [ ] Delete matries  
 
 ---
 
