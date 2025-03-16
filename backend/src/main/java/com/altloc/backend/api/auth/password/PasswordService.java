@@ -6,9 +6,10 @@ import com.altloc.backend.model.LoginResponse;
 import com.altloc.backend.model.RegistrationDTO;
 import com.altloc.backend.service.JwtService;
 import com.altloc.backend.service.UserService;
-import com.altloc.backend.store.entity.PasswordEntity;
-import com.altloc.backend.store.entity.UserEntity;
-import com.altloc.backend.store.repository.UserRepository;
+import com.altloc.backend.store.entities.UserEntity;
+import com.altloc.backend.store.entities.auth.PasswordEntity;
+import com.altloc.backend.store.repositories.UserRepository;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

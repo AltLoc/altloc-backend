@@ -1,6 +1,6 @@
 package com.altloc.backend.model;
 
-import com.altloc.backend.store.entity.UserEntity;
+import com.altloc.backend.store.entities.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

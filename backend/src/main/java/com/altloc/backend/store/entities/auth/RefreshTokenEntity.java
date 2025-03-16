@@ -1,4 +1,4 @@
-package com.altloc.backend.store.entity;
+package com.altloc.backend.store.entities.auth;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.util.Date;
+
+import com.altloc.backend.store.entities.UserEntity;
 
 @Entity
 @Table(name = "refresh_tokens")
@@ -22,7 +24,6 @@ public class RefreshTokenEntity {
     @Column(name = "user_id", nullable = false)
     private String userId;
 
-    // Связь с UserEntity
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)

@@ -8,7 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.altloc.backend.store.entity.UserEntity;
+import com.altloc.backend.store.entities.UserEntity;
 
 import java.util.Collection;
 import java.util.List;

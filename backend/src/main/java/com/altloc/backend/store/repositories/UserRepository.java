@@ -1,11 +1,11 @@
-package com.altloc.backend.store.repository;
+package com.altloc.backend.store.repositories;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.altloc.backend.store.entity.UserEntity;
+import com.altloc.backend.store.entities.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, String> {

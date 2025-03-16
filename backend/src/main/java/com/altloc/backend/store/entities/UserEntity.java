@@ -1,4 +1,4 @@
-package com.altloc.backend.store.entity;
+package com.altloc.backend.store.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import lombok.Builder;
 import java.time.Instant;
 
 import com.altloc.backend.model.Role;
+import com.altloc.backend.store.entities.auth.PasswordEntity;
 
 @Entity
 @Table(name = "users")

@@ -7,10 +7,10 @@ An application designed to build habits through gamified sessions. It allows use
 All modules listed below are planned for **Version 1.0**.  
 
 ### ✅ Auth (Authentication and Registration)  
-- [ ] Registration via e-mail  
+- [X] Registration via e-mail  
 - [ ] Registration via Google  
 - [ ] Email confirmation  
-- [ ] Login  
+- [X] Login  
 - [ ] Password recovery  
 
 ---

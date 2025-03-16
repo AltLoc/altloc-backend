@@ -8,9 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
-import com.altloc.backend.store.entity.RefreshTokenEntity;
-import com.altloc.backend.store.repository.RefreshTokenRepository;
-import com.altloc.backend.store.repository.UserRepository;
+
+import com.altloc.backend.store.entities.auth.RefreshTokenEntity;
+import com.altloc.backend.store.repositories.RefreshTokenRepository;
+import com.altloc.backend.store.repositories.UserRepository;
 import com.altloc.backend.model.UserDetailsImpl;
 
 import java.security.Key;

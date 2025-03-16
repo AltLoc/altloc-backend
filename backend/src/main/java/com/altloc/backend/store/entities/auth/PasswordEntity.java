@@ -1,4 +1,6 @@
-package com.altloc.backend.store.entity;
+package com.altloc.backend.store.entities.auth;
+
+import com.altloc.backend.store.entities.UserEntity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,7 +22,6 @@ public class PasswordEntity {
     @Column(name = "user_id")
     private String userId;
 
-    // Связь с UserEntity
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
