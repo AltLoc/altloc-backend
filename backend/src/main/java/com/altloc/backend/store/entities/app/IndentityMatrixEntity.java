@@ -24,7 +24,7 @@ public class IndentityMatrixEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String userId;
 
     @Column(nullable = false)

@@ -1,6 +1,6 @@
-package com.altloc.backend.api.factories;
+package com.altloc.backend.api.app.factories;
 
-import com.altloc.backend.api.dto.TaskDto;
+import com.altloc.backend.api.app.dto.TaskDto;
 import com.altloc.backend.store.entities.app.TaskEntity;
 
 public class TaskDtoFactory {

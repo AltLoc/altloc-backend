@@ -1,4 +1,4 @@
-package com.altloc.backend.api.dto;
+package com.altloc.backend.api.app.dto;
 
 import java.time.Instant;
 
@@ -14,10 +14,12 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
+public class IndentityMatrixDto {
 
     @NonNull
     private String id;
+    @NonNull
+    private String userId;
     @NonNull
     private String name;
 
@@ -28,4 +30,5 @@ public class CategoryDto {
     @NonNull
     @JsonProperty("updated_at")
     private Instant updatedAt;
+
 }

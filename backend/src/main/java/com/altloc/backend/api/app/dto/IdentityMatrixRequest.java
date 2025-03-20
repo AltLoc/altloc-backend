@@ -1,4 +1,4 @@
-package com.altloc.backend.api.dto;
+package com.altloc.backend.api.app.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IdentityMatrixRequest {
+
+    private String id;
 
     @NotBlank
     private String name;

@@ -1,8 +1,8 @@
-package com.altloc.backend.api.factories;
+package com.altloc.backend.api.app.factories;
 
 import org.springframework.stereotype.Component;
 
-import com.altloc.backend.api.dto.CategoryDto;
+import com.altloc.backend.api.app.dto.CategoryDto;
 import com.altloc.backend.store.entities.app.CategoryEntity;
 
 @Component
