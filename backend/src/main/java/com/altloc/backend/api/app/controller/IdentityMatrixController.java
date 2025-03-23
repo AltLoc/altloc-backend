@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
 import com.altloc.backend.api.app.dto.IdentityMatrixRequest;
-import com.altloc.backend.api.app.dto.IndentityMatrixDto;
+import com.altloc.backend.api.app.dto.IdentityMatrixDto;
 import com.altloc.backend.api.app.dto.ResponseDto;
-import com.altloc.backend.api.app.factories.IndentityMatrixDtoFactory;
+import com.altloc.backend.api.app.factories.IdentityMatrixDtoFactory;
 import com.altloc.backend.exception.BadRequestException;
 import com.altloc.backend.model.UserDetailsImpl;
-import com.altloc.backend.store.entities.app.IndentityMatrixEntity;
-import com.altloc.backend.store.repositories.app.IndentityMatrixRepository;
+import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
+import com.altloc.backend.store.repositories.app.IdentityMatrixRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,86 +37,96 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class IdentityMatrixController {
 
-        private final IndentityMatrixDtoFactory indentityMatrixDtoFactory;
-        private final IndentityMatrixRepository indentityMatrixRepository;
-        private final ControllerHelper controllerHelper;
+  private final IdentityMatrixDtoFactory identityMatrixDtoFactory;
+  private final IdentityMatrixRepository identityMatrixRepository;
+  private final ControllerHelper controllerHelper;
 
-        public static final String FETCH_IDENTITY_MATRIX = "/identity-matrices";
-        public static final String CREATE_OR_UPDATE_IDENTITY_MATRIX = "/identity-matrix";
-        public static final String DELETE_IDENTITY_MATRIX = "/identity-matrix/{identityMatrix_id}";
+  public static final String FETCH_IDENTITY_MATRICES = "/identity-matrices";
+  public static final String CREATE_OR_UPDATE_IDENTITY_MATRIX = "/identity-matrix";
+  public static final String DELETE_IDENTITY_MATRIX = "/identity-matrix/{identityMatrix_id}";
+  public static final String GET_IDENTITY_MATRIX = "/identity-matrix/{matrix_id}";
 
-        @GetMapping(FETCH_IDENTITY_MATRIX)
-        public List<IndentityMatrixDto> fetchIndentityMatrices(
-                        @RequestParam(value = "prefix_name", required = false) Optional<String> optionalPrefixName) {
-                optionalPrefixName = optionalPrefixName.filter(prefixName -> !prefixName.trim().isEmpty());
+  @GetMapping(FETCH_IDENTITY_MATRICES)
+  public List<IdentityMatrixDto> fetchIndentityMatrices(
+      @RequestParam(value = "prefix_name", required = false) Optional<String> optionalPrefixName) {
+    optionalPrefixName = optionalPrefixName.filter(prefixName -> !prefixName.trim().isEmpty());
 
-                Stream<IndentityMatrixEntity> projectStream = optionalPrefixName
-                                .map(indentityMatrixRepository::streamAllByNameStartsWithIgnoreCase)
-                                .orElseGet(indentityMatrixRepository::streamAllBy);
+    Stream<IdentityMatrixEntity> identityMatrixStream = optionalPrefixName
+        .map(identityMatrixRepository::streamAllByNameStartsWithIgnoreCase)
+        .orElseGet(identityMatrixRepository::streamAllBy);
 
-                return projectStream
-                                .map(indentityMatrixDtoFactory::createIndentityMatrixDto)
-                                .collect(Collectors.toList());
+    return identityMatrixStream
+        .map(identityMatrixDtoFactory::createIdentityMatrixDto)
+        .collect(Collectors.toList());
 
-        }
+  }
 
-        @PutMapping(CREATE_OR_UPDATE_IDENTITY_MATRIX)
-        public IndentityMatrixDto createOrUpdateProject(@RequestBody IdentityMatrixRequest identityMatrixRequest) {
+  @GetMapping(GET_IDENTITY_MATRIX)
+  public IdentityMatrixDto getIdentityMatrix(
+      @PathVariable(name = "matrix_id") String identityMatrixId) {
+    return identityMatrixDtoFactory.createIdentityMatrixDto(
+        controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId));
+  }
 
-                Optional<String> optionalIdentityMatixId = Optional.ofNullable(identityMatrixRequest.getId());
-                Optional<String> optionalIdentityMatixName = Optional.ofNullable(identityMatrixRequest.getName());
+  @PutMapping(CREATE_OR_UPDATE_IDENTITY_MATRIX)
+  public IdentityMatrixDto createOrUpdateProject(@RequestBody IdentityMatrixRequest identityMatrixRequest) {
 
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+    Optional<String> optionalIdentityMatixId = Optional.ofNullable(identityMatrixRequest.getId());
+    Optional<String> optionalIdentityMatixName = Optional.ofNullable(identityMatrixRequest.getName());
 
-                optionalIdentityMatixName = optionalIdentityMatixName
-                                .filter(projectName -> !projectName.trim().isEmpty());
+    System.out.println("optionalIdentityMatixId" + optionalIdentityMatixId);
 
-                boolean isCreate = !optionalIdentityMatixId.isPresent();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
 
-                if (isCreate && !optionalIdentityMatixName.isPresent()) {
-                        throw new BadRequestException("Identity Matrix name can't be empty.");
-                }
+    optionalIdentityMatixName = optionalIdentityMatixName
+        .filter(projectName -> !projectName.trim().isEmpty());
 
-                final IndentityMatrixEntity indentityMatrix = optionalIdentityMatixId
-                                .map(controllerHelper::getProjectOrThrowException)
-                                .orElseGet(() -> IndentityMatrixEntity.builder().build());
+    boolean isCreate = !optionalIdentityMatixId.isPresent();
 
-                optionalIdentityMatixName
-                                .ifPresent(projectName -> {
+    if (isCreate && !optionalIdentityMatixName.isPresent()) {
+      throw new BadRequestException("Identity Matrix name can't be empty.");
+    }
 
-                                        indentityMatrixRepository
-                                                        .findByName(projectName)
-                                                        .filter(anotherProject -> !Objects.equals(
-                                                                        anotherProject.getId(),
-                                                                        indentityMatrix.getId()))
-                                                        .ifPresent(anotherProject -> {
-                                                                throw new BadRequestException(
-                                                                                String.format("Project \"%s\" already exists.",
-                                                                                                projectName));
-                                                        });
+    final IdentityMatrixEntity indentityMatrix = optionalIdentityMatixId
+        .map(controllerHelper::getIdentityMatrixOrThrowException)
+        .orElseGet(() -> IdentityMatrixEntity.builder().build());
 
-                                        indentityMatrix.setName(projectName);
-                                });
+    optionalIdentityMatixName
+        .ifPresent(matrixName -> {
 
-                final IndentityMatrixEntity savedIndentityMatrix = indentityMatrixRepository.saveAndFlush(
-                                IndentityMatrixEntity.builder()
-                                                .name(identityMatrixRequest.getName())
-                                                .userId(user.getId())
-                                                .build());
+          identityMatrixRepository
+              .findByName(matrixName)
+              .filter(anotherMatrix -> !Objects.equals(
+                  anotherMatrix.getId(),
+                  indentityMatrix.getId()))
+              .ifPresent(anotherProject -> {
+                throw new BadRequestException(
+                    String.format("Matrix \"%s\" already exists.",
+                        matrixName));
+              });
 
-                return indentityMatrixDtoFactory.createIndentityMatrixDto(savedIndentityMatrix);
-        }
+          indentityMatrix.setName(matrixName);
+        });
 
-        @DeleteMapping(DELETE_IDENTITY_MATRIX)
-        public ResponseDto deleteIndentityMatrix(
-                        @PathVariable("identityMatrix_id") String identityMatrixId) {
-                {
-                        controllerHelper.getProjectOrThrowException(identityMatrixId);
+    final IdentityMatrixEntity savedIndentityMatrix = identityMatrixRepository.saveAndFlush(
+        IdentityMatrixEntity.builder()
+            .name(identityMatrixRequest.getName())
+            .userId(user.getId())
+            .build());
 
-                        indentityMatrixRepository.deleteById(identityMatrixId);
-                        return ResponseDto.makeDefault(true);
+    return identityMatrixDtoFactory.createIdentityMatrixDto(savedIndentityMatrix);
+  }
 
-                }
-        }
+  @DeleteMapping(DELETE_IDENTITY_MATRIX)
+  public ResponseDto deleteIndentityMatrix(
+      @PathVariable("identityMatrix_id") String identityMatrixId) {
+    {
+      controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId);
+
+      identityMatrixRepository.deleteById(identityMatrixId);
+      return ResponseDto.makeDefault(true);
+
+    }
+  }
 }

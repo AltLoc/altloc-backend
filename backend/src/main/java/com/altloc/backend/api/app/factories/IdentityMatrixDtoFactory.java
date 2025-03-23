@@ -2,14 +2,14 @@ package com.altloc.backend.api.app.factories;
 
 import org.springframework.stereotype.Component;
 
-import com.altloc.backend.api.app.dto.IndentityMatrixDto;
-import com.altloc.backend.store.entities.app.IndentityMatrixEntity;
+import com.altloc.backend.api.app.dto.IdentityMatrixDto;
+import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 
 @Component
-public class IndentityMatrixDtoFactory {
+public class IdentityMatrixDtoFactory {
 
-    public IndentityMatrixDto createIndentityMatrixDto(IndentityMatrixEntity entity) {
-        return IndentityMatrixDto.builder()
+    public IdentityMatrixDto createIdentityMatrixDto(IdentityMatrixEntity entity) {
+        return IdentityMatrixDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .userId(entity.getUserId())

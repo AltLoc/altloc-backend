@@ -23,9 +23,9 @@ All modules listed below are planned for **Version 1.0**.
 ---
 
 ### ✅ Identity Matrix
-- [ ] Create matries  
-- [ ] Edit matries  
-- [ ] Delete matries  
+- [X] 
+- [X] Create/Edit matries  
+- [X] Delete matries  
 
 ---
 

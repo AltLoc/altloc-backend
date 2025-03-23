@@ -14,7 +14,7 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndentityMatrixDto {
+public class IdentityMatrixDto {
 
     @NonNull
     private String id;

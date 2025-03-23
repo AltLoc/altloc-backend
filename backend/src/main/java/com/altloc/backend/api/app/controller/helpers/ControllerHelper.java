@@ -3,8 +3,8 @@ package com.altloc.backend.api.app.controller.helpers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.altloc.backend.store.entities.app.IndentityMatrixEntity;
-import com.altloc.backend.store.repositories.app.IndentityMatrixRepository;
+import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
+import com.altloc.backend.store.repositories.app.IdentityMatrixRepository;
 import com.altloc.backend.exception.NotFoundException;
 
 import jakarta.transaction.Transactional;
@@ -14,11 +14,11 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class ControllerHelper {
 
-    private IndentityMatrixRepository indentityMatrixRepository;
+    private final IdentityMatrixRepository identityMatrixRepository;
 
-    public IndentityMatrixEntity getProjectOrThrowException(String matrixId) {
+    public IdentityMatrixEntity getIdentityMatrixOrThrowException(String matrixId) {
 
-        return indentityMatrixRepository
+        return identityMatrixRepository
                 .findById(matrixId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(

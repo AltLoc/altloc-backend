@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IndentityMatrixEntity {
+public class IdentityMatrixEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
