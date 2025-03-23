@@ -31,6 +31,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getEmail(),
                 user.getPasswordAccount().getPasswordHashed(),
                 user.getRole());
+
     }
 
     @Override
