@@ -1,0 +1,14 @@
+Copyright (c) 2025 Oleh Ortynskyi
+
+All rights reserved.
+
+This repository and its contents are provided for educational and viewing purposes only. By accessing this repository, you agree to the following terms:
+
+1. **No Modification**: You may not distribute, modify, or create derivative works based on this code, either in its original or modified form, without explicit permission from the author.
+2. **No Redistribution**: You may not redistribute the code in any form without explicit written permission from the author.
+3. **No Commercial Use**: You may not use this code for commercial purposes, including but not limited to selling, renting, or licensing the code, without explicit written permission from the author.
+4. **Attribution**: If you use this code in any context, you must credit the author, include a link to the original repository, and indicate if changes were made. The attribution must be visible in any context where the code is used or displayed.
+
+By using this code, you acknowledge and agree to comply with these terms.
+
+For permissions, contact: progofcom@gmail.com
