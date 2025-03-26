@@ -2,13 +2,13 @@ package com.altloc.backend.api.app.factories;
 
 import org.springframework.stereotype.Component;
 
-import com.altloc.backend.api.app.dto.CategoryDto;
-import com.altloc.backend.store.entities.app.CategoryEntity;
+import com.altloc.backend.api.app.dto.DomainDto;
+import com.altloc.backend.store.entities.app.DomainEntity;
 
 @Component
-public class CategoryDtoFactory {
-    public CategoryDto createCategoryDto(CategoryEntity entity) {
-        return CategoryDto.builder()
+public class DomainDtoFactory {
+    public DomainDto createDomainDto(DomainEntity entity) {
+        return DomainDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .createdAt(entity.getCreatedAt())

@@ -1,11 +1,11 @@
 package com.altloc.backend.api.app.factories;
 
-import com.altloc.backend.api.app.dto.TaskDto;
-import com.altloc.backend.store.entities.app.TaskEntity;
+import com.altloc.backend.api.app.dto.HabitDto;
+import com.altloc.backend.store.entities.app.HabitEntity;
 
-public class TaskDtoFactory {
-    public TaskDto createTaskDto(TaskEntity entity) {
-        return TaskDto.builder()
+public class HabitDtoFactory {
+    public HabitDto createHabitDto(HabitEntity entity) {
+        return HabitDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .createdAt(entity.getCreatedAt())

@@ -10,13 +10,13 @@ import lombok.Builder;
 import java.time.Instant;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "habits")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TaskEntity {
+public class HabitEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

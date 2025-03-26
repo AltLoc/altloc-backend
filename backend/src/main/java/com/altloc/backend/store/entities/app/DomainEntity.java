@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "domains")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryEntity {
+public class DomainEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,7 +36,7 @@ public class CategoryEntity {
     @Builder.Default
     @Column(nullable = false)
     @OneToMany
-    private List<TaskEntity> tasks = new ArrayList<>();
+    private List<HabitEntity> tasks = new ArrayList<>();
 
     @Column(nullable = false)
     private Instant createdAt;

@@ -33,7 +33,7 @@ public class IdentityMatrixEntity {
     @Builder.Default
     @Column(nullable = false)
     @OneToMany
-    private List<CategoryEntity> categories = new ArrayList<>();
+    private List<DomainEntity> categories = new ArrayList<>();
 
     @Column(nullable = false)
     private Instant createdAt;
