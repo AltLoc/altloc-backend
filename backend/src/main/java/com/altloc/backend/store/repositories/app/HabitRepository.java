@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.altloc.backend.store.entities.app.HabitEntity;
 
 @Repository
-public interface TaskRepository extends JpaRepository<HabitEntity, String> {
+public interface HabitRepository extends JpaRepository<HabitEntity, String> {
 
 }

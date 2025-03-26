@@ -28,15 +28,12 @@ public class DomainEntity {
     private String matrixId;
 
     @Column(nullable = false)
-    private String userId;
-
-    @Column(nullable = false)
     private String name;
 
     @Builder.Default
     @Column(nullable = false)
     @OneToMany
-    private List<HabitEntity> tasks = new ArrayList<>();
+    private List<HabitEntity> habits = new ArrayList<>();
 
     @Column(nullable = false)
     private Instant createdAt;

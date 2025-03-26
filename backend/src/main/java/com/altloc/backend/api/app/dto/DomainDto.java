@@ -1,6 +1,7 @@
 package com.altloc.backend.api.app.dto;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,12 +15,19 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
+public class DomainDto {
 
     @NonNull
     private String id;
+
+    @NonNull
+    protected String matrixId;
+
     @NonNull
     private String name;
+
+    @NonNull
+    List<HabitDto> habits;
 
     @NonNull
     @JsonProperty("created_at")

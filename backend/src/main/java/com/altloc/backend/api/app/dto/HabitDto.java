@@ -14,7 +14,7 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDto {
+public class HabitDto {
 
     @NonNull
     private String id;
