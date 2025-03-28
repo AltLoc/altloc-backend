@@ -22,14 +22,18 @@ public class HabitEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
-    private String categoryId;
+    @Column(name = "domain_id", nullable = false)
+    private String domainId;
 
     @Column(nullable = false)
     private String userId;
 
     @Column(nullable = false)
     private String name;
+
+    // @ManyToOne
+    // @JoinColumn(name = "domain_id", nullable = false)
+    // private DomainEntity domain;
 
     @Column(nullable = false)
     private Instant createdAt;

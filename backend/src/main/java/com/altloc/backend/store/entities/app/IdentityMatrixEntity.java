@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "identity_matrices")
+@Table(name = "identity_matrix")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,15 +24,15 @@ public class IdentityMatrixEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     @Column(nullable = false)
     private String name;
 
     @Builder.Default
-    @Column(nullable = false)
     @OneToMany
+    @JoinColumn(name = "identity_matrix_id", referencedColumnName = "id")
     private List<DomainEntity> domains = new ArrayList<>();
 
     @Column(nullable = false)

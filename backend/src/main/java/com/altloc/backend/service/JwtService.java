@@ -3,6 +3,8 @@ package com.altloc.backend.service;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,13 +13,13 @@ import org.springframework.security.core.Authentication;
 
 import com.altloc.backend.store.entities.auth.RefreshTokenEntity;
 import com.altloc.backend.store.repositories.RefreshTokenRepository;
-import com.altloc.backend.store.repositories.UserRepository;
 import com.altloc.backend.model.UserDetailsImpl;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class JwtService {
 
@@ -34,9 +36,10 @@ public class JwtService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
+    // public JwtService(RefreshTokenRepository refreshTokenRepository,
+    // UserRepository userRepository) {
+    // this.refreshTokenRepository = refreshTokenRepository;
+    // }
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);

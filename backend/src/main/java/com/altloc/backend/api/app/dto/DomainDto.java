@@ -21,7 +21,7 @@ public class DomainDto {
     private String id;
 
     @NonNull
-    protected String matrixId;
+    protected String identityMatrixId;
 
     @NonNull
     private String name;

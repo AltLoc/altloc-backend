@@ -43,8 +43,8 @@ public class IdentityMatrixController {
 
   public static final String FETCH_IDENTITY_MATRICES = "/identity-matrices";
   public static final String CREATE_OR_UPDATE_IDENTITY_MATRIX = "/identity-matrix";
-  public static final String DELETE_IDENTITY_MATRIX = "/identity-matrix/{identityMatrix_id}";
-  public static final String GET_IDENTITY_MATRIX = "/identity-matrix/{matrix_id}";
+  public static final String DELETE_IDENTITY_MATRIX = "/identity-matrix/{identity_matrix_id}";
+  public static final String GET_IDENTITY_MATRIX = "/identity-matrix/{identity_matrix_id}";
 
   @GetMapping(FETCH_IDENTITY_MATRICES)
   public List<IdentityMatrixDto> fetchIndentityMatrices(
@@ -63,7 +63,7 @@ public class IdentityMatrixController {
 
   @GetMapping(GET_IDENTITY_MATRIX)
   public IdentityMatrixDto getIdentityMatrix(
-      @PathVariable(name = "matrix_id") String identityMatrixId) {
+      @PathVariable(name = "identity_matrix_id") String identityMatrixId) {
     return identityMatrixDtoFactory.createIdentityMatrixDto(
         controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId));
   }
@@ -120,7 +120,7 @@ public class IdentityMatrixController {
 
   @DeleteMapping(DELETE_IDENTITY_MATRIX)
   public ResponseDto deleteIndentityMatrix(
-      @PathVariable("identityMatrix_id") String identityMatrixId) {
+      @PathVariable("identity_matrix_id") String identityMatrixId) {
     {
       controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId);
 

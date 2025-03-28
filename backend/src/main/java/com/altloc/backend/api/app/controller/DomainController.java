@@ -14,8 +14,6 @@ import com.altloc.backend.api.app.dto.DomainDto;
 import com.altloc.backend.api.app.factories.DomainDtoFactory;
 import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;
-import com.altloc.backend.store.repositories.app.HabitRepository;
-import com.altloc.backend.store.repositories.app.IdentityMatrixRepository;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.exception.BadRequestException;
 
@@ -29,24 +27,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class DomainController {
 
-    private final IdentityMatrixRepository identityMatrixRepository;
-    private final HabitRepository habitRepository;
     private final DomainRepository domainRepository;
     private final DomainDtoFactory domainDtoFactory;
     private final ControllerHelper controllerHelper;
 
-    public static final String GET_DOMAINS = "/identity-matrix/{matrix_id}/domains";
-    public static final String CREATE_DOMAIN = "/identity-matrix/{matrix_id}/domain";
-    public static final String DELETE_DOMAIN = "/identity-matrix/{matrix_id}/domain/{domain_id}";
-    public static final String GET_DOMAIN_ById = "/identity-matrix/{matrix_id}/domain/{domain_id}";
+    public static final String GET_DOMAINS = "/identity-matrix/{identity_matrix_id}/domains";
+    public static final String CREATE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domains";
+    public static final String DELETE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
+    public static final String GET_DOMAIN_ById = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
 
     @GetMapping(GET_DOMAINS)
     public List<DomainDto> getDomains(
-            @PathVariable(name = "matrix_id") String matrixId) {
+            @PathVariable(name = "identity_matrix_id") String identityMatrixId) {
 
-        IdentityMatrixEntity matrix = controllerHelper.getIdentityMatrixOrThrowException(matrixId);
+        IdentityMatrixEntity identityMatrix = controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId);
 
-        return matrix
+        return identityMatrix
                 .getDomains()
                 .stream()
                 .map(domainDtoFactory::createDomainDto)
@@ -56,16 +52,16 @@ public class DomainController {
 
     @PostMapping(CREATE_DOMAIN)
     public DomainDto createDomain(
-            @PathVariable(name = "matrix_id") String matrixId,
+            @PathVariable(name = "identity_matrix_id") String identityMatrixId,
             @RequestParam(name = "domain_name") String domainName) {
 
         if (domainName.trim().isEmpty()) {
             throw new BadRequestException("Domain name cannot be empty.");
         }
 
-        IdentityMatrixEntity matrix = controllerHelper.getIdentityMatrixOrThrowException(matrixId);
+        IdentityMatrixEntity identityMatrix = controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId);
 
-        matrix
+        identityMatrix
                 .getDomains()
                 .stream()
                 .map(DomainEntity::getName)
@@ -78,7 +74,7 @@ public class DomainController {
         final DomainEntity savedDomain = domainRepository.saveAndFlush(
                 DomainEntity.builder()
                         .name(domainName)
-                        .matrixId(matrixId)
+                        .identityMatrixId(identityMatrixId)
                         .build());
 
         return domainDtoFactory.createDomainDto(savedDomain);

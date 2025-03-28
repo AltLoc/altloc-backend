@@ -16,13 +16,13 @@ public class ControllerHelper {
 
     private final IdentityMatrixRepository identityMatrixRepository;
 
-    public IdentityMatrixEntity getIdentityMatrixOrThrowException(String matrixId) {
+    public IdentityMatrixEntity getIdentityMatrixOrThrowException(String identityMatrixId) {
 
         return identityMatrixRepository
-                .findById(matrixId)
+                .findById(identityMatrixId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(
                                 "Identity Matrix with \"%s\" doesn't exist.",
-                                matrixId)));
+                                identityMatrixId)));
     }
 }
