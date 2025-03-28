@@ -3,6 +3,7 @@ package com.altloc.backend.api.app.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
 import com.altloc.backend.api.app.dto.DomainDto;
+import com.altloc.backend.api.app.dto.ResponseDto;
 import com.altloc.backend.api.app.factories.DomainDtoFactory;
 import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;
@@ -36,7 +38,7 @@ public class DomainController {
     public static final String GET_DOMAINS = "/identity-matrix/{identity_matrix_id}/domains";
     public static final String CREATE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domains";
     public static final String UPDATE_DOMAIN = "/domain/{domain_id}";
-    public static final String DELETE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
+    public static final String DELETE_DOMAIN = "/domain/{domain_id}";
     public static final String GET_DOMAIN_ById = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
 
     @GetMapping(GET_DOMAINS)
@@ -108,6 +110,24 @@ public class DomainController {
         final DomainEntity savedDomain = domainRepository.saveAndFlush(domainEntity);
 
         return domainDtoFactory.createDomainDto(savedDomain);
+    }
+
+    @DeleteMapping(DELETE_DOMAIN)
+    public ResponseDto deleteIndentityMatrix(
+            @PathVariable("domain_id") String domainId) {
+        {
+            DomainEntity domainEntity = getTaskStateOrThrowException(domainId);
+
+            if (!domainEntity.getHabits().isEmpty()) {
+                throw new BadRequestException("Domain cannot be deleted because it has tasks.");
+
+            }
+
+            domainRepository.deleteById(domainId);
+
+            return ResponseDto.makeDefault(true);
+
+        }
     }
 
     private DomainEntity getTaskStateOrThrowException(String domainId) {

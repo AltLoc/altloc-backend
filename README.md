@@ -23,15 +23,15 @@ All modules listed below are planned for **Version 1.0**.
 ---
 
 ### ✅ Identity Matrix
-- [X] 
+- [X] Fetch matrices
 - [X] Create/Edit matries  
 - [X] Delete matries  
 
 ---
 
 ### ✅ Habit Categories  
-- [ ] Create categories  
-- [ ] Edit categories  
+- [X] Fetch categories  
+- [X] Create/Edit categories  
 - [ ] Delete categories  
 
 ---

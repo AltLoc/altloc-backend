@@ -22,17 +22,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.altloc.backend.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final UserService userService;
     private final TokenFilter tokenFilter;
-
-    public SecurityConfig(UserService userService, TokenFilter tokenFilter) {
-        this.userService = userService;
-        this.tokenFilter = tokenFilter;
-    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
