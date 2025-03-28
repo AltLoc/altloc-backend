@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.exception.BadRequestException;
+import com.altloc.backend.exception.NotFoundException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class DomainController {
 
     public static final String GET_DOMAINS = "/identity-matrix/{identity_matrix_id}/domains";
     public static final String CREATE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domains";
+    public static final String UPDATE_DOMAIN = "/domain/{domain_id}";
     public static final String DELETE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
     public static final String GET_DOMAIN_ById = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
 
@@ -78,6 +81,43 @@ public class DomainController {
                         .build());
 
         return domainDtoFactory.createDomainDto(savedDomain);
+    }
+
+    @PatchMapping(UPDATE_DOMAIN)
+    public DomainDto updateDomain(
+            @PathVariable(name = "domain_id") String domainId,
+            @RequestParam(name = "domain_name") String domainName) {
+
+        if (domainName.trim().isEmpty()) {
+            throw new BadRequestException("Domain name cannot be empty.");
+        }
+
+        DomainEntity domainEntity = getTaskStateOrThrowException(domainId);
+
+        domainRepository
+                .findDomainEntityByIdentityMatrixIdAndNameContainsIgnoreCase(
+                        domainEntity.getIdentityMatrixId(),
+                        domainName)
+                .filter(anotherTaskState -> !anotherTaskState.getId().equals(domainId))
+                .ifPresent(anotherTaskState -> {
+                    throw new BadRequestException(String.format("Domain \"%s\" already exists.", domainName));
+                });
+
+        domainEntity.setName(domainName);
+
+        final DomainEntity savedDomain = domainRepository.saveAndFlush(domainEntity);
+
+        return domainDtoFactory.createDomainDto(savedDomain);
+    }
+
+    private DomainEntity getTaskStateOrThrowException(String domainId) {
+
+        return domainRepository
+                .findById(domainId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(
+                                "Domain with \"%s\" id doesn't exist.",
+                                domainId)));
     }
 
 }
