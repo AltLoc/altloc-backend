@@ -36,7 +36,7 @@ public class DomainEntity {
     @Builder.Default
     @Column(nullable = false)
     @OneToMany
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "domain_id", referencedColumnName = "id")
     private List<HabitEntity> habits = new ArrayList<>();
 
     @Column(nullable = false)

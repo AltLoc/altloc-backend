@@ -10,7 +10,7 @@ import lombok.Builder;
 import java.time.Instant;
 
 @Entity
-@Table(name = "habits")
+@Table(name = "habit")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,9 +24,6 @@ public class HabitEntity {
 
     @Column(name = "domain_id", nullable = false)
     private String domainId;
-
-    @Column(nullable = false)
-    private String userId;
 
     @Column(nullable = false)
     private String name;

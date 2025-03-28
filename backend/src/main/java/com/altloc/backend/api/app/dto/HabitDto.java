@@ -18,6 +18,10 @@ public class HabitDto {
 
     @NonNull
     private String id;
+
+    @NonNull
+    protected String domainId;
+
     @NonNull
     private String name;
 

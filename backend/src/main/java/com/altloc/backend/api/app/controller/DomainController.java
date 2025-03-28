@@ -19,7 +19,6 @@ import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.exception.BadRequestException;
-import com.altloc.backend.exception.NotFoundException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ public class DomainController {
     public static final String CREATE_DOMAIN = "/identity-matrix/{identity_matrix_id}/domains";
     public static final String UPDATE_DOMAIN = "/domain/{domain_id}";
     public static final String DELETE_DOMAIN = "/domain/{domain_id}";
-    public static final String GET_DOMAIN_ById = "/identity-matrix/{identity_matrix_id}/domain/{domain_id}";
 
     @GetMapping(GET_DOMAINS)
     public List<DomainDto> getDomains(
@@ -94,7 +92,7 @@ public class DomainController {
             throw new BadRequestException("Domain name cannot be empty.");
         }
 
-        DomainEntity domainEntity = getTaskStateOrThrowException(domainId);
+        DomainEntity domainEntity = controllerHelper.getDomainOrThrowException(domainId);
 
         domainRepository
                 .findDomainEntityByIdentityMatrixIdAndNameContainsIgnoreCase(
@@ -113,10 +111,10 @@ public class DomainController {
     }
 
     @DeleteMapping(DELETE_DOMAIN)
-    public ResponseDto deleteIndentityMatrix(
+    public ResponseDto deleteDomain(
             @PathVariable("domain_id") String domainId) {
         {
-            DomainEntity domainEntity = getTaskStateOrThrowException(domainId);
+            DomainEntity domainEntity = controllerHelper.getDomainOrThrowException(domainId);
 
             if (!domainEntity.getHabits().isEmpty()) {
                 throw new BadRequestException("Domain cannot be deleted because it has tasks.");
@@ -128,16 +126,6 @@ public class DomainController {
             return ResponseDto.makeDefault(true);
 
         }
-    }
-
-    private DomainEntity getTaskStateOrThrowException(String domainId) {
-
-        return domainRepository
-                .findById(domainId)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format(
-                                "Domain with \"%s\" id doesn't exist.",
-                                domainId)));
     }
 
 }

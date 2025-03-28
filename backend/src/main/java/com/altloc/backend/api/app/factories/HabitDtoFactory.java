@@ -10,6 +10,7 @@ public class HabitDtoFactory {
     public HabitDto createHabitDto(HabitEntity entity) {
         return HabitDto.builder()
                 .id(entity.getId())
+                .domainId(entity.getDomainId())
                 .name(entity.getName())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
