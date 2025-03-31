@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,6 +77,24 @@ public class HabitContoller {
 
         return habitDtoFactory.createHabitDto(savedHabit);
 
+    }
+
+    @PatchMapping(UPDATE_HABIT)
+    public HabitDto updateDomain(
+            @PathVariable(name = "habit_id") String habitId,
+            @RequestBody HabitRequest habitRequest) {
+
+        if (habitRequest.getName().trim().isEmpty()) {
+            throw new BadRequestException("Habit name cannot be empty.");
+        }
+
+        HabitEntity habitEntity = controllerHelper.getHabitOrThrowException(habitId);
+
+        habitEntity.setName(habitRequest.getName());
+
+        final HabitEntity savedDomain = habitRepository.saveAndFlush(habitEntity);
+
+        return habitDtoFactory.createHabitDto(savedDomain);
     }
 
     @DeleteMapping(DELETE_HABIT)
