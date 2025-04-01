@@ -1,13 +1,13 @@
 package com.altloc.backend.api.app.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,13 +35,22 @@ public class HabitContoller {
     private final HabitRepository habitRepository;
     private final ControllerHelper controllerHelper;
 
-    public static final String GET_HABITS = "/domain/{domain_id}/habits";
-    public static final String CREATE_HABIT = "/domain/{domain_id}/habits";
-    public static final String UPDATE_HABIT = "/habit/{habit_id}";
+    public static final String FETCH_DOMAIN_HABITS = "/domain/{domain_id}/habits";
+    public static final String FETCH_HABITS = "/habits";
+    public static final String CREATE_OR_UPDATE_HABIT = "/domain/habit";
     public static final String DELETE_HABIT = "/habit/{habit_id}";
 
-    @GetMapping(GET_HABITS)
-    public List<HabitDto> getHabits(
+    @GetMapping(FETCH_HABITS)
+    public List<HabitDto> getHabits() {
+        return habitRepository
+                .findAll()
+                .stream()
+                .map(habitDtoFactory::createHabitDto)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping(FETCH_DOMAIN_HABITS)
+    public List<HabitDto> fetchHabits(
             @PathVariable(name = "domain_id") String domainId) {
 
         DomainEntity domain = controllerHelper.getDomainOrThrowException(domainId);
@@ -54,46 +63,44 @@ public class HabitContoller {
 
     }
 
-    @PostMapping(CREATE_HABIT)
-    public HabitDto createHabit(
-            @PathVariable(name = "domain_id") String domainId,
-            @RequestBody HabitRequest habitRequest) {
+    @PutMapping(CREATE_OR_UPDATE_HABIT)
+    public HabitDto createOrUpdateHabit(@RequestBody HabitRequest habitRequest) {
 
-        DomainEntity domain = controllerHelper.getDomainOrThrowException(domainId);
+        Optional<String> optionalHabitId = Optional.ofNullable(habitRequest.getId());
+        Optional<String> optionalHabitName = Optional.ofNullable(habitRequest.getName());
+        Optional<String> optionalDomainId = Optional.ofNullable(habitRequest.getDomainId());
 
-        if (domain == null) {
-            throw new BadRequestException("Domain with id " + domainId + " not found.");
+        boolean isCreate = optionalDomainId.isEmpty();
+
+        if (isCreate && optionalHabitName.isEmpty()) {
+            throw new BadRequestException("Habit name can't be empty.");
         }
 
-        if (habitRequest.getName().trim().isEmpty()) {
-            throw new BadRequestException("Habit name cannot be empty.");
+        if (optionalDomainId.isEmpty()) {
+            throw new BadRequestException("Domain ID is required.");
         }
 
-        final HabitEntity savedHabit = habitRepository.saveAndFlush(
-                HabitEntity.builder()
-                        .name(habitRequest.getName())
-                        .domainId(domainId)
+        DomainEntity domain = controllerHelper
+                .getDomainOrThrowException(optionalDomainId.get());
+
+        final HabitEntity habitEntity = optionalHabitId
+                .map(controllerHelper::getHabitOrThrowException)
+                .orElseGet(() -> HabitEntity.builder()
+                        .domainId(optionalDomainId.get())
                         .build());
 
-        return habitDtoFactory.createHabitDto(savedHabit);
+        optionalHabitName.ifPresent(habitName -> {
+            habitRepository
+                    .findHabitEntityByDomainIdAndNameContainsIgnoreCase(domain.getId(), habitName)
+                    .filter(existingHabit -> !existingHabit.getId().equals(habitEntity.getId()))
+                    .ifPresent(existingDomain -> {
+                        throw new BadRequestException(String.format("Habit \"%s\" already exists.", habitName));
+                    });
 
-    }
-
-    @PatchMapping(UPDATE_HABIT)
-    public HabitDto updateDomain(
-            @PathVariable(name = "habit_id") String habitId,
-            @RequestBody HabitRequest habitRequest) {
-
-        if (habitRequest.getName().trim().isEmpty()) {
-            throw new BadRequestException("Habit name cannot be empty.");
-        }
-
-        HabitEntity habitEntity = controllerHelper.getHabitOrThrowException(habitId);
-
-        habitEntity.setName(habitRequest.getName());
+            habitEntity.setName(habitName);
+        });
 
         final HabitEntity savedDomain = habitRepository.saveAndFlush(habitEntity);
-
         return habitDtoFactory.createHabitDto(savedDomain);
     }
 
