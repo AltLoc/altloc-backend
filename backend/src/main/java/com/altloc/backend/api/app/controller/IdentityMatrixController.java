@@ -112,6 +112,8 @@ public class IdentityMatrixController {
     final IdentityMatrixEntity savedIndentityMatrix = identityMatrixRepository.saveAndFlush(
         IdentityMatrixEntity.builder()
             .name(identityMatrixRequest.getName())
+            .description(identityMatrixRequest.getDescription())
+
             .userId(user.getId())
             .build());
 

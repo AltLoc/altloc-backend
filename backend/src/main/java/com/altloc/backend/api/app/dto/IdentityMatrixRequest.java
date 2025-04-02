@@ -17,4 +17,6 @@ public class IdentityMatrixRequest {
     // @NotBlank
     private String name;
 
+    private String description;
+
 }

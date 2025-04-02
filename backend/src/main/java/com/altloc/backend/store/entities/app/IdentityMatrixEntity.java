@@ -30,6 +30,9 @@ public class IdentityMatrixEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String description;
+
     @Builder.Default
     @OneToMany
     @JoinColumn(name = "identity_matrix_id", referencedColumnName = "id")

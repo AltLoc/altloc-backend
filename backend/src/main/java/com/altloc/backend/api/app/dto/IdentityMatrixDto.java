@@ -18,10 +18,15 @@ public class IdentityMatrixDto {
 
     @NonNull
     private String id;
+
     @NonNull
     private String userId;
+
     @NonNull
     private String name;
+
+    @NonNull
+    private String description;
 
     @NonNull
     @JsonProperty("created_at")
