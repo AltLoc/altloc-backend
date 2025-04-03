@@ -9,6 +9,8 @@ import lombok.Builder;
 
 import java.time.Instant;
 
+import com.altloc.backend.store.enums.DayPart;
+
 @Entity
 @Table(name = "habit")
 @Getter
@@ -27,6 +29,19 @@ public class HabitEntity {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private int runtime;
+
+    @Column(nullable = false)
+    private int targetNumberOfCompletions;
+
+    @Column(nullable = false)
+    private int numberOfCompletions;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DayPart dayPart;
 
     // @ManyToOne
     // @JoinColumn(name = "domain_id", nullable = false)

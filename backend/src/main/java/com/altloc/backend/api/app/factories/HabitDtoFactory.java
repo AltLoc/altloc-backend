@@ -12,6 +12,7 @@ public class HabitDtoFactory {
                 .id(entity.getId())
                 .domainId(entity.getDomainId())
                 .name(entity.getName())
+                .runtime(entity.getRuntime())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

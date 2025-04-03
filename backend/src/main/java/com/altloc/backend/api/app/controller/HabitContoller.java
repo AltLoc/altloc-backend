@@ -100,7 +100,12 @@ public class HabitContoller {
             habitEntity.setName(habitName);
         });
 
-        final HabitEntity savedDomain = habitRepository.saveAndFlush(habitEntity);
+        final HabitEntity savedDomain = habitRepository.saveAndFlush(
+                HabitEntity.builder()
+                        .name(habitRequest.getName())
+                        .domainId(habitRequest.getDomainId())
+                        .runtime(habitRequest.getRuntime())
+                        .build());
         return habitDtoFactory.createHabitDto(savedDomain);
     }
 

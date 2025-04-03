@@ -9,8 +9,8 @@ import lombok.Builder;
 
 import java.time.Instant;
 
-import com.altloc.backend.model.Role;
 import com.altloc.backend.store.entities.auth.PasswordEntity;
+import com.altloc.backend.store.enums.Role;
 
 @Entity
 @Table(name = "users")

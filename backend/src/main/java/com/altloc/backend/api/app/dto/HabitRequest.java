@@ -15,4 +15,5 @@ public class HabitRequest {
     private String id;
     private String domainId;
     private String name;
+    private int runtime;
 }
