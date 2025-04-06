@@ -105,6 +105,7 @@ public class HabitContoller {
                         .name(habitRequest.getName())
                         .domainId(habitRequest.getDomainId())
                         .runtime(habitRequest.getRuntime())
+                        .dayPart(habitRequest.getDayPart())
                         .build());
         return habitDtoFactory.createHabitDto(savedDomain);
     }

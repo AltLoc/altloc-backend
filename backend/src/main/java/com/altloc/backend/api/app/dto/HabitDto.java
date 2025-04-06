@@ -2,6 +2,7 @@ package com.altloc.backend.api.app.dto;
 
 import java.time.Instant;
 
+import com.altloc.backend.store.enums.DayPart;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +29,9 @@ public class HabitDto {
 
     @NotBlank
     private int runtime;
+
+    @NotBlank
+    private DayPart dayPart;
 
     @NonNull
     @JsonProperty("created_at")

@@ -1,5 +1,7 @@
 package com.altloc.backend.api.app.dto;
 
+import com.altloc.backend.store.enums.DayPart;
+
 // import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,4 +18,5 @@ public class HabitRequest {
     private String domainId;
     private String name;
     private int runtime;
+    private DayPart dayPart;
 }
