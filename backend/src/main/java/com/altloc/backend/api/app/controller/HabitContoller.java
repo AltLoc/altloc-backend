@@ -1,9 +1,12 @@
 package com.altloc.backend.api.app.controller;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +20,13 @@ import com.altloc.backend.api.app.dto.HabitDto;
 import com.altloc.backend.api.app.dto.HabitRequest;
 import com.altloc.backend.api.app.dto.ResponseDto;
 import com.altloc.backend.api.app.factories.HabitDtoFactory;
+import com.altloc.backend.api.app.factories.CompletedHabitDtoFactory;
 import com.altloc.backend.exception.BadRequestException;
+import com.altloc.backend.model.UserDetailsImpl;
+import com.altloc.backend.store.entities.app.CompletedHabitEntity;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.store.entities.app.HabitEntity;
+import com.altloc.backend.store.repositories.app.CompletedHabitRepository;
 import com.altloc.backend.store.repositories.app.HabitRepository;
 
 import jakarta.transaction.Transactional;
@@ -34,11 +41,14 @@ public class HabitContoller {
     private final HabitDtoFactory habitDtoFactory;
     private final HabitRepository habitRepository;
     private final ControllerHelper controllerHelper;
+    private final CompletedHabitRepository completedHabitRepository;
+    private final CompletedHabitDtoFactory completedHabitDtoFactory;
 
     public static final String FETCH_DOMAIN_HABITS = "/domain/{domain_id}/habits";
     public static final String FETCH_HABITS = "/habits";
     public static final String CREATE_OR_UPDATE_HABIT = "/domain/habit";
     public static final String DELETE_HABIT = "/habit/{habit_id}";
+    public static final String COMPLETED_HABIT = "/habit/{habit_id}/completed";
 
     @GetMapping(FETCH_HABITS)
     public List<HabitDto> getHabits() {
@@ -80,6 +90,9 @@ public class HabitContoller {
             throw new BadRequestException("Domain ID is required.");
         }
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
         DomainEntity domain = controllerHelper
                 .getDomainOrThrowException(optionalDomainId.get());
 
@@ -106,6 +119,7 @@ public class HabitContoller {
                         .domainId(habitRequest.getDomainId())
                         .runtime(habitRequest.getRuntime())
                         .dayPart(habitRequest.getDayPart())
+                        .userId(user.getId())
                         .build());
         return habitDtoFactory.createHabitDto(savedDomain);
     }
@@ -123,4 +137,37 @@ public class HabitContoller {
         }
     }
 
+    @PutMapping(COMPLETED_HABIT)
+    public ResponseDto completeHabit(
+            @PathVariable("habit_id") String habitId) {
+        {
+            HabitEntity habitEntity = controllerHelper.getHabitOrThrowException(habitId);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
+            Instant todayStart = controllerHelper.getStartOfTodayUtc();
+
+            boolean alreadyCompleted = completedHabitRepository
+                    .findFirstByHabitIdAndUserIdAndCompletedAtAfter(habitId, user.getId(), todayStart)
+                    .isPresent();
+
+            if (alreadyCompleted) {
+                throw new BadRequestException("Habit already completed today.");
+            }
+
+            habitEntity.setNumberOfCompletions(habitEntity.getNumberOfCompletions() + 1);
+
+            final CompletedHabitEntity completedHabitSaved = completedHabitRepository.saveAndFlush(
+                    CompletedHabitEntity.builder()
+
+                            .habitId(habitId)
+                            .userId(user.getId())
+                            .build());
+
+            completedHabitDtoFactory.createCompletedHabitDto(completedHabitSaved);
+
+            return ResponseDto.makeDefault(true);
+        }
+    }
 }

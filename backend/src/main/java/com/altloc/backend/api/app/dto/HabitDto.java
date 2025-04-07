@@ -25,6 +25,9 @@ public class HabitDto {
     protected String domainId;
 
     @NonNull
+    protected String userId;
+
+    @NonNull
     private String name;
 
     @NotBlank
@@ -32,6 +35,9 @@ public class HabitDto {
 
     @NotBlank
     private DayPart dayPart;
+
+    @NotBlank
+    private Boolean isCompleted;
 
     @NonNull
     @JsonProperty("created_at")
