@@ -8,12 +8,22 @@ import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 @Component
 public class IdentityMatrixDtoFactory {
 
+    private final DomainDtoFactory domainDtoFactory;
+
+    IdentityMatrixDtoFactory(DomainDtoFactory domainDtoFactory) {
+        this.domainDtoFactory = domainDtoFactory;
+    }
+
     public IdentityMatrixDto createIdentityMatrixDto(IdentityMatrixEntity entity) {
         return IdentityMatrixDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .userId(entity.getUserId())
+                .domains(entity.getDomains()
+                        .stream()
+                        .map(domainDtoFactory::createDomainDto)
+                        .toList())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

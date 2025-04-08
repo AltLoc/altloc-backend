@@ -1,6 +1,7 @@
 package com.altloc.backend.api.app.dto;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,6 +28,9 @@ public class IdentityMatrixDto {
 
     @NonNull
     private String description;
+
+    @NonNull
+    List<DomainDto> domains;
 
     @NonNull
     @JsonProperty("created_at")
