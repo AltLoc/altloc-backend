@@ -30,11 +30,20 @@ public class HabitDto {
     @NonNull
     private String name;
 
+    @NonNull
+    private String domainName;
+
     @NotBlank
     private int runtime;
 
     @NotBlank
     private DayPart dayPart;
+
+    @NotBlank
+    private int targetNumberOfCompletions;
+
+    @NotBlank
+    private int numberOfCompletions;
 
     @NotBlank
     private Boolean isCompleted;

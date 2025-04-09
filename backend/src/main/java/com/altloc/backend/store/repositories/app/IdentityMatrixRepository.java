@@ -17,4 +17,6 @@ public interface IdentityMatrixRepository extends JpaRepository<IdentityMatrixEn
 
     Stream<IdentityMatrixEntity> streamAllByNameStartsWithIgnoreCase(String prefixName);
 
+    boolean existsByUserId(String userId);
+
 }

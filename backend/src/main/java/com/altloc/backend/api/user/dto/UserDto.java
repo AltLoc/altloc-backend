@@ -35,6 +35,8 @@ public class UserDto {
 
     private int currency;
 
+    private boolean hasMatrix;
+
     @NonNull
     @JsonProperty("created_at")
     private Instant createdAt;

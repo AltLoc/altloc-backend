@@ -27,6 +27,11 @@ public class HabitEntity {
     @Column(name = "domain_id", nullable = false)
     private String domainId;
 
+    // @ManyToOne
+    // @JoinColumn(name = "domain_id", referencedColumnName = "id", insertable =
+    // false, updatable = false)
+    // private DomainEntity domain;
+
     @Column(name = "user_id", nullable = false)
     private String userId;
 

@@ -24,6 +24,9 @@ public class UserDetailsImpl implements UserDetails {
     private final String email;
     private final String password;
     private final Role role;
+    private final int score;
+    private final int level;
+    private final int currency;
 
     public static UserDetailsImpl build(UserEntity user) {
         return new UserDetailsImpl(
@@ -31,7 +34,10 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPasswordAccount().getPasswordHashed(),
-                user.getRole());
+                user.getRole(),
+                user.getScore(),
+                user.getLevel(),
+                user.getCurrency());
 
     }
 

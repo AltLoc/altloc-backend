@@ -26,6 +26,9 @@ public class IdentityMatrixEntity {
 
     @Column(name = "user_id", nullable = false)
     private String userId;
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    // private UserEntity user;
 
     @Column(nullable = false)
     private String name;

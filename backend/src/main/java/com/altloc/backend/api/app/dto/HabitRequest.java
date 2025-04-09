@@ -19,4 +19,5 @@ public class HabitRequest {
     private String name;
     private int runtime;
     private DayPart dayPart;
+    private int targetNumberOfCompletions;
 }
