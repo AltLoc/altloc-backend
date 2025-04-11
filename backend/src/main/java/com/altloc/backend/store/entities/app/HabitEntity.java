@@ -48,7 +48,7 @@ public class HabitEntity {
     private int numberOfCompletions;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "day_part", nullable = false)
     private DayPart dayPart;
 
     // @ManyToOne

@@ -26,6 +26,7 @@ import com.altloc.backend.model.UserDetailsImpl;
 import com.altloc.backend.store.entities.app.CompletedHabitEntity;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.store.entities.app.HabitEntity;
+import com.altloc.backend.store.enums.DayPart;
 import com.altloc.backend.store.repositories.app.CompletedHabitRepository;
 import com.altloc.backend.store.repositories.app.HabitRepository;
 
@@ -46,6 +47,7 @@ public class HabitContoller {
 
     public static final String FETCH_DOMAIN_HABITS = "/domain/{domain_id}/habits";
     public static final String FETCH_HABITS = "/habits";
+    public static final String FETCH_DAY_PART_HABITS = "/habits/day-part/{day_part}";
     public static final String CREATE_OR_UPDATE_HABIT = "/domain/habit";
     public static final String DELETE_HABIT = "/habit/{habit_id}";
     public static final String COMPLETED_HABIT = "/habit/{habit_id}/completed";
@@ -54,6 +56,16 @@ public class HabitContoller {
     public List<HabitDto> getHabits() {
         return habitRepository
                 .findAll()
+                .stream()
+                .map(habitDtoFactory::createHabitDto)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping(FETCH_DAY_PART_HABITS)
+    public List<HabitDto> getDayPartHabits(
+            @PathVariable(name = "day_part") DayPart dayPart) {
+        return habitRepository
+                .findAllByDayPart(dayPart)
                 .stream()
                 .map(habitDtoFactory::createHabitDto)
                 .collect(Collectors.toList());
