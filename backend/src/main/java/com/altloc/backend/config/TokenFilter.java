@@ -30,9 +30,9 @@ public class TokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@SuppressWarnings("null") HttpServletRequest request,
+            @SuppressWarnings("null") HttpServletResponse response,
+            @SuppressWarnings("null") FilterChain filterChain) throws ServletException, IOException {
 
         String jwt = extractToken(request);
         if (jwt != null && jwtService.validateToken(jwt)) {
@@ -44,8 +44,15 @@ public class TokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Extracts the JWT from the request. It checks both cookies and the
+     * Authorization
+     * header.
+     *
+     * @param request The HTTP request
+     * @return The JWT if found, null otherwise
+     */
     private String extractToken(HttpServletRequest request) {
-        // Получаем accessToken из cookie
         if (request.getCookies() != null) {
             Optional<String> tokenFromCookie = Arrays.stream(request.getCookies())
                     .filter(cookie -> "accessToken".equals(cookie.getName()))
@@ -57,7 +64,7 @@ public class TokenFilter extends OncePerRequestFilter {
             }
         }
 
-        // Получаем accessToken из заголовка Authorization
+        // Check for JWT in the Authorization header
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
             log.info("JWT from header");

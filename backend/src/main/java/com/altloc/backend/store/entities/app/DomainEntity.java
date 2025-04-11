@@ -26,6 +26,9 @@ public class DomainEntity {
     @Column(name = "identity_matrix_id", nullable = false)
     private String identityMatrixId;
 
+    @Column(name = "user_id", nullable = false)
+    private String userId;
+
     @Column(nullable = false)
     private String name;
 

@@ -22,6 +22,8 @@ public interface HabitRepository extends JpaRepository<HabitEntity, String> {
 
     // Optional<HabitEntity> findHabitsByDayPart(@Param("dayPart") String dayPart);
 
-    List<HabitEntity> findAllByDayPart(DayPart dayPart);
+    List<HabitEntity> findAllByDayPartAndUserId(DayPart dayPart, String userId);
+
+    List<HabitEntity> findAllByUserId(String userId);
 
 }

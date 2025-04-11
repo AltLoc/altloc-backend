@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.exception.BadRequestException;
+import com.altloc.backend.model.UserDetailsImpl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +59,7 @@ public class DomainController {
     }
 
     @GetMapping(FETCH_DOMAINS)
-    public List<DomainDto> getHabits() {
+    public List<DomainDto> getDomains() {
         return domainRepository
                 .findAll()
                 .stream()
@@ -88,6 +91,9 @@ public class DomainController {
             throw new BadRequestException("Identity Matrix ID is required.");
         }
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
         IdentityMatrixEntity identityMatrix = controllerHelper
                 .getIdentityMatrixOrThrowException(optionalIdentityMatrixId.get());
 
@@ -95,6 +101,7 @@ public class DomainController {
                 .map(controllerHelper::getDomainOrThrowException)
                 .orElseGet(() -> DomainEntity.builder()
                         .identityMatrixId(optionalIdentityMatrixId.get())
+                        .userId(user.getId())
                         .build());
 
         optionalDomainName.ifPresent(domainName -> {

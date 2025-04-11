@@ -41,26 +41,27 @@ public class IdentityMatrixController {
   private final IdentityMatrixRepository identityMatrixRepository;
   private final ControllerHelper controllerHelper;
 
-  public static final String FETCH_IDENTITY_MATRICES = "/identity-matrices/";
+  public static final String FETCH_IDENTITY_MATRICES = "/identity-matrices";
   public static final String CREATE_OR_UPDATE_IDENTITY_MATRIX = "/identity-matrix";
   public static final String DELETE_IDENTITY_MATRIX = "/identity-matrix/{identity_matrix_id}";
   public static final String GET_IDENTITY_MATRIX = "/identity-matrix/{identity_matrix_id}";
 
   @GetMapping(FETCH_IDENTITY_MATRICES)
-  public List<IdentityMatrixDto> fetchIndentityMatrices(
-      @RequestParam(value = "prefix_name", required = false
+  public List<IdentityMatrixDto> fetchIdentityMatrices(
+      @RequestParam(value = "prefix_name", required = false) Optional<String> optionalPrefixName) {
 
-      ) Optional<String> optionalPrefixName) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
     optionalPrefixName = optionalPrefixName.filter(prefixName -> !prefixName.trim().isEmpty());
 
     Stream<IdentityMatrixEntity> identityMatrixStream = optionalPrefixName
-        .map(identityMatrixRepository::streamAllByNameStartsWithIgnoreCase)
-        .orElseGet(identityMatrixRepository::streamAllBy);
+        .map(prefix -> identityMatrixRepository.streamAllByUserIdAndNameStartsWithIgnoreCase(user.getId(), prefix))
+        .orElseGet(() -> identityMatrixRepository.streamAllByUserId(user.getId()));
 
     return identityMatrixStream
         .map(identityMatrixDtoFactory::createIdentityMatrixDto)
         .collect(Collectors.toList());
-
   }
 
   @GetMapping(GET_IDENTITY_MATRIX)

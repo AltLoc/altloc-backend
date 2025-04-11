@@ -54,8 +54,12 @@ public class HabitContoller {
 
     @GetMapping(FETCH_HABITS)
     public List<HabitDto> getHabits() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
         return habitRepository
-                .findAll()
+                .findAllByUserId(user.getId())
                 .stream()
                 .map(habitDtoFactory::createHabitDto)
                 .collect(Collectors.toList());
@@ -64,8 +68,12 @@ public class HabitContoller {
     @GetMapping(FETCH_DAY_PART_HABITS)
     public List<HabitDto> getDayPartHabits(
             @PathVariable(name = "day_part") DayPart dayPart) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
         return habitRepository
-                .findAllByDayPart(dayPart)
+                .findAllByDayPartAndUserId(dayPart, user.getId())
                 .stream()
                 .map(habitDtoFactory::createHabitDto)
                 .collect(Collectors.toList());

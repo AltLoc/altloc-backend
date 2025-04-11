@@ -17,6 +17,7 @@ public class DomainDtoFactory {
         return DomainDto.builder()
                 .id(entity.getId())
                 .identityMatrixId(entity.getIdentityMatrixId())
+                .userId(entity.getUserId())
                 .name(entity.getName())
                 .habits(entity.getHabits()
                         .stream()

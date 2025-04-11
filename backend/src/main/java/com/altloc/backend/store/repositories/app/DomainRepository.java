@@ -1,6 +1,8 @@
 package com.altloc.backend.store.repositories.app;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +15,7 @@ public interface DomainRepository extends JpaRepository<DomainEntity, String> {
             String identityMatrixId,
             String domainName);
 
+    List<DomainEntity> findAllByUserId(String userId);
+
+    Stream<DomainEntity> streamAllByUserId(String userId);
 }
