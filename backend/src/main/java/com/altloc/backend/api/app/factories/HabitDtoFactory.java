@@ -17,32 +17,36 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class HabitDtoFactory {
 
-    Instant todayStart = LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+  Instant todayStart = LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
 
-    private final CompletedHabitRepository completedHabitRepository;
-    private final HabitRepository habitRepository;
+  private final CompletedHabitRepository completedHabitRepository;
+  private final HabitRepository habitRepository;
 
-    public HabitDto createHabitDto(HabitEntity entity) {
-        return HabitDto.builder()
-                .id(entity.getId())
-                .domainId(entity.getDomainId())
-                .name(entity.getName())
-                .domainName(
-                        habitRepository
-                                .findDomainNameByHabitId(entity.getId())
-                                .orElseThrow(() -> new IllegalArgumentException("Domain ID not found")))
-                .runtime(entity.getRuntime())
-                .dayPart(entity.getDayPart())
-                .userId(entity.getUserId())
-                .isCompleted(
-                        completedHabitRepository
-                                .findFirstByHabitIdAndUserIdAndCompletedAtAfter(entity.getId(), entity.getUserId(),
-                                        todayStart)
-                                .isPresent())
-                .targetNumberOfCompletions(entity.getTargetNumberOfCompletions())
-                .numberOfCompletions(entity.getNumberOfCompletions())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
+  public HabitDto createHabitDto(HabitEntity entity) {
+    return HabitDto.builder()
+        .id(entity.getId())
+        .domainId(entity.getDomainId())
+        .name(entity.getName())
+        .domainName(
+            habitRepository
+                .findDomainNameByHabitId(entity.getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                    "Domain ID not found")))
+        .runtime(entity.getRuntime())
+        .dayPart(entity.getDayPart())
+        .userId(entity.getUserId())
+        .isCompleted(
+            completedHabitRepository
+                .findFirstByHabitIdAndUserIdAndCompletedAtAfter(
+                    entity.getId(), entity.getUserId(),
+                    todayStart)
+                .isPresent())
+        .completedDates(
+            completedHabitRepository.findCompletedDatesByHabitId(entity.getId()))
+        .targetNumberOfCompletions(entity.getTargetNumberOfCompletions())
+        .numberOfCompletions(entity.getNumberOfCompletions())
+        .createdAt(entity.getCreatedAt())
+        .updatedAt(entity.getUpdatedAt())
+        .build();
+  }
 }

@@ -1,9 +1,9 @@
 package com.altloc.backend.api.app.dto;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.altloc.backend.store.enums.DayPart;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -49,10 +49,11 @@ public class HabitDto {
     private Boolean isCompleted;
 
     @NonNull
-    @JsonProperty("created_at")
+    private List<Instant> completedDates;
+
+    @NonNull
     private Instant createdAt;
 
     @NonNull
-    @JsonProperty("updated_at")
     private Instant updatedAt;
 }

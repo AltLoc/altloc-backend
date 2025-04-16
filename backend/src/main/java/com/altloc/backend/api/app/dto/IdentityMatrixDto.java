@@ -3,8 +3,6 @@ package com.altloc.backend.api.app.dto;
 import java.time.Instant;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,11 +31,9 @@ public class IdentityMatrixDto {
     List<DomainDto> domains;
 
     @NonNull
-    @JsonProperty("created_at")
     private Instant createdAt;
 
     @NonNull
-    @JsonProperty("updated_at")
     private Instant updatedAt;
 
 }

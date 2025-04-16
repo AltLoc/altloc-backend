@@ -48,9 +48,27 @@ public class HabitContoller {
     public static final String FETCH_DOMAIN_HABITS = "/domain/{domain_id}/habits";
     public static final String FETCH_HABITS = "/habits";
     public static final String FETCH_DAY_PART_HABITS = "/habits/day-part/{day_part}";
+    public static final String FETCH_HABIT = "/habit/{habit_id}";
     public static final String CREATE_OR_UPDATE_HABIT = "/domain/habit";
     public static final String DELETE_HABIT = "/habit/{habit_id}";
     public static final String COMPLETED_HABIT = "/habit/{habit_id}/completed";
+    public static final String STATS_HABIT = "/habit/{habit_id}/stats";
+
+    @GetMapping(FETCH_HABIT)
+    public HabitDto getHabit(
+            @PathVariable("habit_id") String habitId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
+
+        HabitEntity habitEntity = controllerHelper.getHabitOrThrowException(habitId);
+
+        if (!habitEntity.getUserId().equals(user.getId())) {
+            throw new BadRequestException("You don't have access to this habit.");
+        }
+
+        return habitDtoFactory.createHabitDto(habitEntity);
+    }
 
     @GetMapping(FETCH_HABITS)
     public List<HabitDto> getHabits() {
