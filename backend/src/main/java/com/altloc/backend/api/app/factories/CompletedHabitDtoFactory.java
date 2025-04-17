@@ -2,7 +2,7 @@ package com.altloc.backend.api.app.factories;
 
 import org.springframework.stereotype.Component;
 
-import com.altloc.backend.api.app.dto.CompletedHabitDto;
+import com.altloc.backend.api.app.dto.habit.CompletedHabitDto;
 import com.altloc.backend.store.entities.app.CompletedHabitEntity;
 
 @Component

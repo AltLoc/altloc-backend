@@ -1,4 +1,6 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.dailyComment;
+
+import com.altloc.backend.store.enums.Mood;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +11,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompletedHabitRequest {
+public class DailyCommentRequest {
 
     private String id;
-    private String domainId;
-    private String habitId;
     private String userId;
+    private String content;
+    private Mood mood;
 }

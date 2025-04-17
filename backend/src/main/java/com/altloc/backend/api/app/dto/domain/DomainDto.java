@@ -1,7 +1,9 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.domain;
 
 import java.time.Instant;
 import java.util.List;
+
+import com.altloc.backend.api.app.dto.habit.HabitDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

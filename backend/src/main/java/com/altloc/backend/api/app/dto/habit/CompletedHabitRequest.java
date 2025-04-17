@@ -1,4 +1,4 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.habit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DomainRequest {
+public class CompletedHabitRequest {
+
     private String id;
-    private String identityMatrixId;
-    private String name;
+    private String domainId;
+    private String habitId;
+    private String userId;
 }

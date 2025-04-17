@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
-import com.altloc.backend.api.app.dto.IdentityMatrixDto;
 import com.altloc.backend.api.app.dto.ResponseDto;
+import com.altloc.backend.api.app.dto.identityMatrix.IdentityMatrixDto;
 import com.altloc.backend.api.app.factories.IdentityMatrixDtoFactory;
 import com.altloc.backend.exception.BadRequestException;
 import com.altloc.backend.model.UserDetailsImpl;

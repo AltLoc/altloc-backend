@@ -1,4 +1,4 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.habit;
 
 import java.time.Instant;
 

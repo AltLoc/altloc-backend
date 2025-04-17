@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
-import com.altloc.backend.api.app.dto.HabitDto;
-import com.altloc.backend.api.app.dto.HabitRequest;
 import com.altloc.backend.api.app.dto.ResponseDto;
+import com.altloc.backend.api.app.dto.habit.HabitDto;
+import com.altloc.backend.api.app.dto.habit.HabitRequest;
 import com.altloc.backend.api.app.factories.HabitDtoFactory;
 import com.altloc.backend.api.app.factories.CompletedHabitDtoFactory;
 import com.altloc.backend.exception.BadRequestException;

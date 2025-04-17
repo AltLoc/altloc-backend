@@ -1,7 +1,9 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.identityMatrix;
 
 import java.time.Instant;
 import java.util.List;
+
+import com.altloc.backend.api.app.dto.domain.DomainDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

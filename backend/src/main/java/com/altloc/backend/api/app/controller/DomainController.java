@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
-import com.altloc.backend.api.app.dto.DomainDto;
-import com.altloc.backend.api.app.dto.DomainRequest;
 import com.altloc.backend.api.app.dto.ResponseDto;
+import com.altloc.backend.api.app.dto.domain.DomainDto;
+import com.altloc.backend.api.app.dto.domain.DomainRequest;
 import com.altloc.backend.api.app.factories.DomainDtoFactory;
 import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.DomainRepository;

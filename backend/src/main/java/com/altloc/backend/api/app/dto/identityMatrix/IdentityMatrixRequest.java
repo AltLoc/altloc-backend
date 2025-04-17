@@ -1,6 +1,4 @@
-package com.altloc.backend.api.app.dto;
-
-import com.altloc.backend.store.enums.DayPart;
+package com.altloc.backend.api.app.dto.identityMatrix;
 
 // import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,12 +10,14 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HabitRequest {
+public class IdentityMatrixRequest {
 
     private String id;
-    private String domainId;
+
+    private String bannerKey;
+
     private String name;
-    private int runtime;
-    private DayPart dayPart;
-    private int targetNumberOfCompletions;
+
+    private String description;
+
 }

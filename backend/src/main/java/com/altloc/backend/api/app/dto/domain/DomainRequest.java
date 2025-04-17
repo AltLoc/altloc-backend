@@ -1,6 +1,5 @@
-package com.altloc.backend.api.app.dto;
+package com.altloc.backend.api.app.dto.domain;
 
-// import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,14 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdentityMatrixRequest {
-
+public class DomainRequest {
     private String id;
-
-    private String bannerKey;
-
+    private String identityMatrixId;
     private String name;
-
-    private String description;
-
 }
