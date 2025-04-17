@@ -31,6 +31,9 @@ public class IdentityMatrixEntity {
     // private UserEntity user;
 
     @Column(nullable = false)
+    private String bannerKey;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
