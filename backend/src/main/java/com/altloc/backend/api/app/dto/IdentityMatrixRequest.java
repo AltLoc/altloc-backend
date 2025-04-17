@@ -14,7 +14,8 @@ public class IdentityMatrixRequest {
 
     private String id;
 
-    // @NotBlank
+    private String bannerKey;
+
     private String name;
 
     private String description;

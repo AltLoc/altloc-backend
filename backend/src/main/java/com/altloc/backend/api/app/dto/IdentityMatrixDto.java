@@ -19,6 +19,9 @@ public class IdentityMatrixDto {
     private String id;
 
     @NonNull
+    private String bannerKey;
+
+    @NonNull
     private String userId;
 
     @NonNull

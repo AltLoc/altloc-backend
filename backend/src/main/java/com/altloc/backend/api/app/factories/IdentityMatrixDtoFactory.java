@@ -17,6 +17,7 @@ public class IdentityMatrixDtoFactory {
     public IdentityMatrixDto createIdentityMatrixDto(IdentityMatrixEntity entity) {
         return IdentityMatrixDto.builder()
                 .id(entity.getId())
+                .bannerKey(entity.getBannerKey())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .userId(entity.getUserId())

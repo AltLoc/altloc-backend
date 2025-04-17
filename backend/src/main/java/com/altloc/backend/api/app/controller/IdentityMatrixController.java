@@ -3,14 +3,15 @@ package com.altloc.backend.api.app.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.altloc.backend.api.app.controller.helpers.ControllerHelper;
-import com.altloc.backend.api.app.dto.IdentityMatrixRequest;
 import com.altloc.backend.api.app.dto.IdentityMatrixDto;
 import com.altloc.backend.api.app.dto.ResponseDto;
 import com.altloc.backend.api.app.factories.IdentityMatrixDtoFactory;
 import com.altloc.backend.exception.BadRequestException;
 import com.altloc.backend.model.UserDetailsImpl;
+import com.altloc.backend.service.MinioService;
 import com.altloc.backend.store.entities.app.IdentityMatrixEntity;
 import com.altloc.backend.store.repositories.app.IdentityMatrixRepository;
 
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.MediaType;
 
 @RequiredArgsConstructor
 @RequestMapping("/app")
@@ -39,6 +41,7 @@ public class IdentityMatrixController {
   private final IdentityMatrixDtoFactory identityMatrixDtoFactory;
   private final IdentityMatrixRepository identityMatrixRepository;
   private final ControllerHelper controllerHelper;
+  private final MinioService minioService;
 
   public static final String FETCH_IDENTITY_MATRICES = "/identity-matrices";
   public static final String CREATE_OR_UPDATE_IDENTITY_MATRIX = "/identity-matrix";
@@ -70,12 +73,16 @@ public class IdentityMatrixController {
         controllerHelper.getIdentityMatrixOrThrowException(identityMatrixId));
   }
 
-  @PutMapping(CREATE_OR_UPDATE_IDENTITY_MATRIX)
-  public IdentityMatrixDto createOrUpdateIdentityMatrix(@RequestBody IdentityMatrixRequest identityMatrixRequest) {
+  @PutMapping(value = CREATE_OR_UPDATE_IDENTITY_MATRIX, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public IdentityMatrixDto createOrUpdateIdentityMatrix(
+      @RequestParam(value = "id", required = false) String id,
+      @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "description", required = false) String description,
+      @RequestParam(value = "bannerKey", required = false) String bannerKey,
+      @RequestParam(value = "banner", required = false) MultipartFile bannerFile) {
 
-    Optional<String> optionalIdentityMatrixId = Optional.ofNullable(identityMatrixRequest.getId());
-    Optional<String> optionalIdentityMatrixName = Optional.ofNullable(identityMatrixRequest.getName())
-        .filter(name -> !name.trim().isEmpty());
+    Optional<String> optionalIdentityMatrixId = Optional.ofNullable(id);
+    Optional<String> optionalIdentityMatrixName = Optional.ofNullable(name).filter(n -> !n.trim().isEmpty());
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
@@ -90,21 +97,35 @@ public class IdentityMatrixController {
         .map(controllerHelper::getIdentityMatrixOrThrowException)
         .orElseGet(IdentityMatrixEntity::new);
 
-    optionalIdentityMatrixName.ifPresent(name -> {
-      identityMatrixRepository.findByName(name)
+    optionalIdentityMatrixName.ifPresent(newName -> {
+      identityMatrixRepository.findByName(newName)
           .filter(existing -> !existing.getId().equals(identityMatrix.getId()))
           .ifPresent(existing -> {
-            throw new BadRequestException(String.format("Matrix \"%s\" already exists.", name));
+            throw new BadRequestException(String.format("Matrix \"%s\" already exists.", newName));
           });
-
-      identityMatrix.setName(name);
+      identityMatrix.setName(newName);
     });
 
-    identityMatrix.setDescription(identityMatrixRequest.getDescription());
+    identityMatrix.setDescription(description);
     identityMatrix.setUserId(user.getId());
 
-    IdentityMatrixEntity saved = identityMatrixRepository.saveAndFlush(identityMatrix);
+    // If a new file is uploaded, upload it to MinIO and set the bannerKey
+    if (bannerFile != null && !bannerFile.isEmpty()) {
+      try {
+        String fileKey = "users/identityMatrix/" + UUID.randomUUID() + "-" + bannerFile.getOriginalFilename();
+        minioService.uploadFile(fileKey, bannerFile.getInputStream(), bannerFile.getSize(),
+            bannerFile.getContentType());
+        identityMatrix.setBannerKey(fileKey);
+      } catch (Exception e) {
+        throw new RuntimeException("Ошибка загрузки файла в MinIO: " + e.getMessage(), e);
+      }
+    } else if (bannerKey != null && !bannerKey.isBlank()) {
+      identityMatrix.setBannerKey(bannerKey);
+    } else if (isCreate) {
+      throw new BadRequestException("При создании необходимо загрузить файл или передать bannerKey.");
+    }
 
+    IdentityMatrixEntity saved = identityMatrixRepository.saveAndFlush(identityMatrix);
     return identityMatrixDtoFactory.createIdentityMatrixDto(saved);
   }
 
@@ -119,4 +140,5 @@ public class IdentityMatrixController {
 
     }
   }
+
 }
