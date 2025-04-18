@@ -1,7 +1,5 @@
 package com.altloc.backend.api.app.dto.dailyComment;
 
-import com.altloc.backend.store.enums.Mood;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +22,7 @@ public class DailyCommentDto {
     private String content;
 
     @NonNull
-    private Mood mood;
+    private MoodDto mood;
 
     @NonNull
     private String createdAt;
