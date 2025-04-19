@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class MoodDto {
     private String label;
     private String emoji;
+    private int score;
 }

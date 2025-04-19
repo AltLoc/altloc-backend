@@ -3,7 +3,6 @@ package com.altloc.backend.api.app.factories;
 import org.springframework.stereotype.Component;
 
 import com.altloc.backend.api.app.dto.dailyComment.DailyCommentDto;
-import com.altloc.backend.api.app.dto.dailyComment.MoodDto;
 import com.altloc.backend.store.entities.app.DailyCommentEntity;
 
 import lombok.RequiredArgsConstructor;
@@ -17,10 +16,7 @@ public class DailyCommentDtoFactory {
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .content(entity.getContent())
-                .mood(MoodDto.builder()
-                        .label(entity.getMood().getLabel())
-                        .emoji(entity.getMood().getEmoji())
-                        .build())
+                .mood(entity.getMood())
                 .createdAt(entity.getCreatedAt().toString())
                 .updatedAt(entity.getUpdatedAt().toString())
                 .build();
