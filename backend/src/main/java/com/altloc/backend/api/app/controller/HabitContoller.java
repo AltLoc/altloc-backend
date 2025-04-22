@@ -20,13 +20,16 @@ import com.altloc.backend.api.app.dto.ResponseDto;
 import com.altloc.backend.api.app.dto.habit.HabitDto;
 import com.altloc.backend.api.app.dto.habit.HabitRequest;
 import com.altloc.backend.api.app.factories.HabitDtoFactory;
+import com.altloc.backend.api.app.service.HabitRewardService;
 import com.altloc.backend.api.app.factories.CompletedHabitDtoFactory;
 import com.altloc.backend.exception.BadRequestException;
 import com.altloc.backend.model.UserDetailsImpl;
+import com.altloc.backend.store.entities.UserEntity;
 import com.altloc.backend.store.entities.app.CompletedHabitEntity;
 import com.altloc.backend.store.entities.app.DomainEntity;
 import com.altloc.backend.store.entities.app.HabitEntity;
 import com.altloc.backend.store.enums.DayPart;
+import com.altloc.backend.store.repositories.UserRepository;
 import com.altloc.backend.store.repositories.app.CompletedHabitRepository;
 import com.altloc.backend.store.repositories.app.HabitRepository;
 
@@ -44,6 +47,8 @@ public class HabitContoller {
     private final ControllerHelper controllerHelper;
     private final CompletedHabitRepository completedHabitRepository;
     private final CompletedHabitDtoFactory completedHabitDtoFactory;
+    private final HabitRewardService habitRewardService;
+    private final UserRepository userRepository;
 
     public static final String FETCH_DOMAIN_HABITS = "/domain/{domain_id}/habits";
     public static final String FETCH_HABITS = "/habits";
@@ -197,16 +202,21 @@ public class HabitContoller {
                 throw new BadRequestException("Habit already completed today.");
             }
 
+            UserEntity userEntity = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new BadRequestException("User not found."));
+
             habitEntity.setNumberOfCompletions(habitEntity.getNumberOfCompletions() + 1);
 
             final CompletedHabitEntity completedHabitSaved = completedHabitRepository.saveAndFlush(
                     CompletedHabitEntity.builder()
 
                             .habitId(habitId)
-                            .userId(user.getId())
+                            .user(userEntity)
                             .build());
 
             completedHabitDtoFactory.createCompletedHabitDto(completedHabitSaved);
+
+            habitRewardService.rewardForCompletedHabit(completedHabitSaved);
 
             return ResponseDto.makeDefault(true);
         }

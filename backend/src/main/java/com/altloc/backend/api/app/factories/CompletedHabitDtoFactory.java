@@ -11,7 +11,7 @@ public class CompletedHabitDtoFactory {
         return CompletedHabitDto.builder()
                 .id(entity.getId())
                 .habitId(entity.getHabitId())
-                .userId(entity.getUserId())
+                .userId(entity.getUser().getId())
                 .completedAt(entity.getCompletedAt())
                 .build();
     }

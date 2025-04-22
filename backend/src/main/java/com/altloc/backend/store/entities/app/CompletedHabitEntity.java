@@ -9,6 +9,8 @@ import lombok.Builder;
 
 import java.time.Instant;
 
+import com.altloc.backend.store.entities.UserEntity;
+
 @Entity
 @Table(name = "completed_habit")
 @Getter
@@ -24,8 +26,12 @@ public class CompletedHabitEntity {
     @Column(name = "habit_id", nullable = false)
     private String habitId;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    // @Column(name = "user_id", nullable = false)
+    // private String userId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Column(name = "completed_at", nullable = false)
     private Instant completedAt;
