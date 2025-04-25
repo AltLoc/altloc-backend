@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class UserDtoFactory {
 
-    private IdentityMatrixRepository identityMatrixRepository;
+    private final IdentityMatrixRepository identityMatrixRepository;
 
     public UserDto createUserDto(UserEntity entity) {
         return UserDto.builder()

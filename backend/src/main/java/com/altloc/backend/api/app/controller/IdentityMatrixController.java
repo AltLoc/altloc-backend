@@ -117,12 +117,12 @@ public class IdentityMatrixController {
             bannerFile.getContentType());
         identityMatrix.setBannerKey(fileKey);
       } catch (Exception e) {
-        throw new RuntimeException("Ошибка загрузки файла в MinIO: " + e.getMessage(), e);
+        throw new RuntimeException("Error uploading a file to MinIO: " + e.getMessage(), e);
       }
     } else if (bannerKey != null && !bannerKey.isBlank()) {
       identityMatrix.setBannerKey(bannerKey);
     } else if (isCreate) {
-      throw new BadRequestException("При создании необходимо загрузить файл или передать bannerKey.");
+      throw new BadRequestException("When created, you must upload a file or pass a bannerKey.");
     }
 
     IdentityMatrixEntity saved = identityMatrixRepository.saveAndFlush(identityMatrix);

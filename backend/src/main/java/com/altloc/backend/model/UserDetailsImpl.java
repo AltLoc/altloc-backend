@@ -27,6 +27,7 @@ public class UserDetailsImpl implements UserDetails {
     private final int score;
     private final int level;
     private final int currency;
+    private final String avatarKey;
 
     public static UserDetailsImpl build(UserEntity user) {
         return new UserDetailsImpl(
@@ -37,7 +38,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getRole(),
                 user.getScore(),
                 user.getLevel(),
-                user.getCurrency());
+                user.getCurrency(),
+                user.getAvatarKey());
 
     }
 
