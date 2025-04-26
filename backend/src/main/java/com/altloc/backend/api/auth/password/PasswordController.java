@@ -16,6 +16,8 @@ public class PasswordController {
 
     private final PasswordService passwordService;
 
+    public static final String VERIFY_EMAIL = "/verify-email/{token}";
+
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody RegistrationDTO request) {
         return passwordService.registerUser(request);
@@ -34,5 +36,12 @@ public class PasswordController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         return passwordService.logoutUser(response);
+    }
+
+    @PostMapping(VERIFY_EMAIL)
+    public ResponseEntity<?> verifyEmail(
+            // @PathVariable(name = "user_id") String userId,
+            @PathVariable(name = "token") String token) {
+        return passwordService.verifyEmail(token);
     }
 }

@@ -22,6 +22,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String id;
     private final String username;
     private final String email;
+    private final Boolean emailVerified;
     private final String password;
     private final Role role;
     private final int score;
@@ -34,6 +35,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getEmailVerified(),
                 user.getPasswordAccount().getPasswordHashed(),
                 user.getRole(),
                 user.getScore(),

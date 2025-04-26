@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 
 import com.altloc.backend.store.entities.auth.RefreshTokenEntity;
-import com.altloc.backend.store.repositories.RefreshTokenRepository;
+import com.altloc.backend.store.repositories.auth.RefreshTokenRepository;
 import com.altloc.backend.model.UserDetailsImpl;
 
 import java.security.Key;

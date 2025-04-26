@@ -19,7 +19,7 @@ public class UserDtoFactory {
                 .id(entity.getId())
                 .username(entity.getUsername())
                 .email(entity.getEmail())
-                .emailVerified(entity.isEmailVerified())
+                .emailVerified(entity.getEmailVerified())
                 .avatarKey(entity.getAvatarKey())
                 .currency(entity.getCurrency())
                 .level(entity.getLevel())

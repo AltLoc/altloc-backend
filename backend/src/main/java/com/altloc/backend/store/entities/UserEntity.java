@@ -70,4 +70,8 @@ public class UserEntity {
         }
 
     }
+
+    public boolean getEmailVerified() {
+        return emailVerified;
+    }
 }

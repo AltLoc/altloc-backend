@@ -4,6 +4,8 @@ import com.altloc.backend.config.SecurityConfig;
 import com.altloc.backend.model.LoginDTO;
 import com.altloc.backend.model.LoginResponse;
 import com.altloc.backend.model.RegistrationDTO;
+import com.altloc.backend.service.EmailActivationService;
+import com.altloc.backend.service.EmailService;
 import com.altloc.backend.service.JwtService;
 import com.altloc.backend.service.UserService;
 import com.altloc.backend.store.entities.UserEntity;
@@ -34,6 +36,8 @@ public class PasswordService {
     private final UserService userDetailsService;
     private final AuthenticationManager authenticationManager;
     private final SecurityConfig securityConfig;
+    private final EmailActivationService emailActivationService;
+    private final EmailService emailService;
 
     public ResponseEntity<?> registerUser(RegistrationDTO request) {
         if (userRepository.existsUserByUsername(request.getUsername())) {
@@ -61,6 +65,17 @@ public class PasswordService {
 
         user.setPasswordAccount(passwordEntity);
         userRepository.save(user);
+
+        // final String token = emailActivationService.createActivationForUser(user);
+
+        try {
+            String token = emailActivationService.createActivationForUser(user);
+            emailService.sendEmailWithToken(
+                    request.getEmail(),
+                    "Account Activation", token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send activation email");
+        }
 
         return ResponseEntity.ok("User successfully registered");
     }
@@ -133,5 +148,14 @@ public class PasswordService {
     private void clearAuthCookies(HttpServletResponse response) {
         setAuthCookie(response, "accessToken", null, 0);
         setAuthCookie(response, "refreshToken", null, 0);
+    }
+
+    public ResponseEntity<?> verifyEmail(String token) {
+        System.out.println("Verifying email with token: " + token);
+        if ((boolean) emailActivationService.activateUserByToken(token)) {
+            return ResponseEntity.ok("Email verified successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
     }
 }
