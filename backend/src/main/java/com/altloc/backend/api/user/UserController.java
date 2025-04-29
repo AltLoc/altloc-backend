@@ -81,12 +81,10 @@ public class UserController {
 
         UserEntity user = optionalUser.get();
 
-        // Обновляем имя, если передано
         if (username != null && !username.trim().isEmpty()) {
             user.setUsername(username);
         }
 
-        // Обновляем аватар, если файл передан
         if (avatarFile != null && !avatarFile.isEmpty()) {
             try {
                 String avatarKey = "users/avatar/" + UUID.randomUUID() + "-" + avatarFile.getOriginalFilename();

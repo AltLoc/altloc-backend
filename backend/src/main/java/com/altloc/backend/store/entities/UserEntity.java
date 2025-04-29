@@ -9,6 +9,7 @@ import lombok.Builder;
 
 import java.time.Instant;
 
+import com.altloc.backend.store.entities.auth.GoogleEntity;
 import com.altloc.backend.store.entities.auth.PasswordEntity;
 import com.altloc.backend.store.enums.Role;
 
@@ -61,6 +62,10 @@ public class UserEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private PasswordEntity passwordAccount;
 
+    // Связь с таблицей паролей
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private GoogleEntity googleAccount;
+
     // Инициализация createdAt
     @PrePersist
     protected void onCreate() {
@@ -73,5 +78,10 @@ public class UserEntity {
 
     public boolean getEmailVerified() {
         return emailVerified;
+    }
+
+    public Object getAuthorities() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAuthorities'");
     }
 }

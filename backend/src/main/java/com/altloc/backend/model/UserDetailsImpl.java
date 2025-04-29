@@ -24,6 +24,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String email;
     private final Boolean emailVerified;
     private final String password;
+    private final String googleId;
     private final Role role;
     private final int score;
     private final int level;
@@ -31,12 +32,28 @@ public class UserDetailsImpl implements UserDetails {
     private final String avatarKey;
 
     public static UserDetailsImpl build(UserEntity user) {
+        // String hashedPassword = null;
+        // if (user.getPasswordAccount() != null) {
+        // hashedPassword = user.getPasswordAccount().getPasswordHashed();
+        // }
+        // Проверка на наличие пароля
+        String hashedPassword = user.getPasswordAccount() != null ? user.getPasswordAccount().getPasswordHashed()
+                : null;
+
+        // Проверка на наличие Google аккаунта
+        String googleId = user.getGoogleAccount() != null ? user.getGoogleAccount().getGoogleId() : null;
+
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getEmailVerified(),
-                user.getPasswordAccount().getPasswordHashed(),
+                // user.getPasswordAccount().getPasswordHashed(),
+                hashedPassword,
+                // user.getGoogleAccount().getGoogleId(),
+                // user.getGoogleAccount() != null ? user.getGoogleAccount().getGoogleId() :
+                // null,
+                googleId,
                 user.getRole(),
                 user.getScore(),
                 user.getLevel(),
@@ -71,4 +88,5 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
