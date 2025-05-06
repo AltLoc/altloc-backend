@@ -27,15 +27,31 @@ public class MinioService {
         }
     }
 
-    public void uploadFile(String fileName, InputStream inputStream, long size, String contentType) throws Exception {
-        createBucketIfNotExists(); // Ensure the bucket exists before uploading
-        minioClient.putObject(
-                PutObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(fileName)
-                        .stream(inputStream, size, -1)
-                        .contentType(contentType)
-                        .build());
+    // public void uploadFile(String fileName, InputStream inputStream, long size,
+    // String contentType) throws Exception {
+    // createBucketIfNotExists(); // Ensure the bucket exists before uploading
+    // minioClient.putObject(
+    // PutObjectArgs.builder()
+    // .bucket(bucketName)
+    // .object(fileName)
+    // .stream(inputStream, size, -1)
+    // .contentType(contentType)
+    // .build());
+    // }
+
+    public void uploadFile(String fileName, InputStream inputStream, long size, String contentType) {
+        try {
+            createBucketIfNotExists();
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .stream(inputStream, size, -1)
+                            .contentType(contentType)
+                            .build());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload file to MinIO", e);
+        }
     }
 
     public InputStream downloadFile(String fileName) throws Exception {

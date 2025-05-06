@@ -1,0 +1,10 @@
+{
+  "name": "altloc-backend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "docker:build:backend": "docker build . --target backend --tag altloc-backend:latest",
+    "docker:up:prod": "docker compose -f docker-compose.prod.yml up -d",
+    "docker:down:prod": "docker compose -f docker-compose.prod.yml down"
+  }
+}

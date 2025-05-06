@@ -92,7 +92,7 @@ public class UserController {
                         avatarFile.getContentType());
                 user.setAvatarKey(avatarKey);
             } catch (Exception e) {
-                throw new RuntimeException("Ошибка загрузки аватара в MinIO: " + e.getMessage(), e);
+                throw new RuntimeException("Error loading avatar in MinIO: " + e.getMessage(), e);
             }
         }
 

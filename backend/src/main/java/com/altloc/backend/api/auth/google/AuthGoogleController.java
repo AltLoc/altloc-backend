@@ -14,7 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -25,8 +27,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
+import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class AuthGoogleController implements AuthenticationSuccessHandler {
@@ -37,6 +40,9 @@ public class AuthGoogleController implements AuthenticationSuccessHandler {
     private final GoogleRepository googleRepository;
     private final MinioService minioService;
 
+    @Value("${frontend.redirect.url:http://localhost:3000/user/quests}")
+    private String frontendRedirectUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
@@ -45,100 +51,82 @@ public class AuthGoogleController implements AuthenticationSuccessHandler {
         String googleId = oauthUser.getAttribute("sub");
         String avatarUrl = oauthUser.getAttribute("picture");
 
-        if (email == null || email.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Email not found in Google response");
+        if (email == null || email.isEmpty() || googleId == null || googleId.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing email or Google ID");
             return;
         }
 
-        if (googleId == null || googleId.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Google ID not found in Google response");
-            return;
-        }
-
-        // Check if the user already exists in the database
         UserEntity user = userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    UserEntity newUser = new UserEntity();
-                    newUser.setEmail(email);
-                    newUser.setUsername(email.split("@")[0]);
-                    newUser.setEmailVerified(true);
-                    return userRepository.save(newUser);
-                });
+                .orElseGet(() -> registerNewUser(email));
 
-        // Check if the user already has a Google account linked
+        Optional<GoogleEntity> existingGoogleAccount = googleRepository.findByGoogleId(googleId);
+        if (existingGoogleAccount.isPresent() && !existingGoogleAccount.get().getUser().getId().equals(user.getId())) {
+            response.sendError(HttpServletResponse.SC_CONFLICT, "Google ID already linked to another user");
+            return;
+        }
+
         if (user.getGoogleAccount() == null) {
-            boolean alreadyLinked = googleRepository.findByGoogleId(googleId).isPresent();
-            if (alreadyLinked) {
-                response.sendError(HttpServletResponse.SC_CONFLICT, "Google ID already linked to another user");
-                return;
-            }
-
-            GoogleEntity googleAccount = GoogleEntity.builder()
-                    .user(user)
-                    .googleId(googleId)
-                    .build();
-            user.setGoogleAccount(googleAccount);
-            userRepository.save(user);
+            linkGoogleAccount(user, googleId);
         }
 
-        // Handle avatar URL and upload the avatar image to MinIO
-        // if (avatarUrl != null && !avatarUrl.isEmpty()) {
-        // try {
-        // String avatarKey = "users/avatar/" + googleId + ".jpg"; // Generate a unique
-        // key for the avatar
-        // try (InputStream avatarStream = URI.create(avatarUrl).toURL().openStream()) {
-        // long avatarSize = avatarStream.available();
-        // String contentType = "image/jpeg"; // Assuming the avatar is a JPEG image
-        // minioService.uploadFile(avatarKey, avatarStream, avatarSize, contentType); //
-        // Upload the avatar
-        // // image to MinIO
-        // }
-        // user.setAvatarKey(avatarKey);
-        // userRepository.save(user);
-        // } catch (Exception e) {
-        // throw new RuntimeException("Error uploading avatar from Google: " +
-        // e.getMessage(), e);
-        // }
-        // }
-
-        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+        if (avatarUrl != null && !avatarUrl.isEmpty() && user.getAvatarKey() == null) {
             try {
-                String avatarKey = "users/avatar/" + googleId + ".jpg";
-
-                try (InputStream avatarStream = URI.create(avatarUrl).toURL().openStream();
-                        ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-
-                    byte[] data = new byte[8192];
-                    int bytesRead;
-                    while ((bytesRead = avatarStream.read(data, 0, data.length)) != -1) {
-                        buffer.write(data, 0, bytesRead);
-                    }
-
-                    byte[] avatarBytes = buffer.toByteArray();
-                    long avatarSize = avatarBytes.length;
-                    String contentType = "image/jpeg"; // предположим JPEG
-
-                    // повторно открываем поток из массива байтов
-                    try (InputStream uploadStream = new java.io.ByteArrayInputStream(avatarBytes)) {
-                        minioService.uploadFile(avatarKey, uploadStream, avatarSize, contentType);
-                    }
-                }
-
-                user.setAvatarKey(avatarKey);
-                userRepository.save(user);
-
+                uploadAndSetAvatar(user, avatarUrl, googleId);
             } catch (Exception e) {
-                throw new RuntimeException("Ошибка загрузки аватара из Google: " + e.getMessage(), e);
+                log.warn("Failed to upload avatar for user {}: {}", email, e.getMessage());
             }
         }
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(userService.loadUserByUsername(email), null);
-        String accessToken = jwtService.generateAccessToken(authToken);
-        String refreshToken = jwtService.generateRefreshToken(authToken);
+        String accessToken = jwtService.generateAccessToken(createAuthToken(email));
+        String refreshToken = jwtService.generateRefreshToken(createAuthToken(email));
 
         setAuthCookies(response, accessToken, refreshToken);
+        response.sendRedirect(frontendRedirectUrl);
+    }
 
-        response.sendRedirect("http://localhost:3000/user/quests");
+    private UserEntity registerNewUser(String email) {
+        UserEntity user = new UserEntity();
+        user.setEmail(email);
+        user.setUsername(email.split("@")[0]);
+        user.setEmailVerified(true);
+        return userRepository.save(user);
+    }
+
+    private void linkGoogleAccount(UserEntity user, String googleId) {
+        GoogleEntity googleAccount = GoogleEntity.builder()
+                .user(user)
+                .googleId(googleId)
+                .build();
+        user.setGoogleAccount(googleAccount);
+        userRepository.save(user);
+    }
+
+    private void uploadAndSetAvatar(UserEntity user, String avatarUrl, String googleId) throws IOException {
+        String avatarKey = "users/avatar/" + googleId + ".jpg";
+
+        try (InputStream avatarStream = URI.create(avatarUrl).toURL().openStream();
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+            byte[] data = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = avatarStream.read(data)) != -1) {
+                buffer.write(data, 0, bytesRead);
+            }
+
+            byte[] avatarBytes = buffer.toByteArray();
+            long avatarSize = avatarBytes.length;
+
+            try (InputStream uploadStream = new java.io.ByteArrayInputStream(avatarBytes)) {
+                minioService.uploadFile(avatarKey, uploadStream, avatarSize, "image/jpeg");
+            }
+
+            user.setAvatarKey(avatarKey);
+            userRepository.save(user);
+        }
+    }
+
+    private Authentication createAuthToken(String email) {
+        return new UsernamePasswordAuthenticationToken(userService.loadUserByUsername(email), null);
     }
 
     private void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken) {
@@ -149,7 +137,7 @@ public class AuthGoogleController implements AuthenticationSuccessHandler {
     private void setAuthCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // true if using HTTPS
+        cookie.setSecure(true); // Set to true in production
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
