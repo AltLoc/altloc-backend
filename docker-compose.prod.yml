@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: "dev"
       POSTGRES_DB: "altlocdb"
     networks:
-      - dev 
+      - dev
 
   minio:
     image: quay.io/minio/minio
@@ -26,14 +26,13 @@ services:
     volumes:
       - minio-data:/data
     networks:
-      - dev 
+      - dev
 
-  backend:
-    container_name: spring-backend  
-    build: 
+  altloc-backend:
+    build:
       context: .
       dockerfile: Dockerfile
-      target: backend
+      target: altloc-backend
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/altlocdb"
       SPRING_DATASOURCE_USERNAME: "dev"
@@ -54,7 +53,8 @@ services:
       - dev
 
 networks:
-  dev:  
+  dev:
+    external: true
 
 volumes:
   postgres-data:
